@@ -1,0 +1,15 @@
+{
+  "name": "basic-gui",
+  "productName": "Test",
+  "version": "1.0.0",
+  "description": "App to create dataset",
+  "main": "main/main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Alex Sommerville",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^32.1.1"
+  }
+}

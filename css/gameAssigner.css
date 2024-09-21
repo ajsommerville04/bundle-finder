@@ -1,0 +1,50 @@
+.gameAssignerContainer {
+    display: grid;
+    height: 100%;
+    width: 20%;
+    min-width: 200px;
+    background-color: #1c1f23;
+    grid-template-rows: auto auto;
+}
+
+.masksGames {
+    display: grid;
+    border: 2px solid #5d82b6; /* Temparory */
+    grid-template-rows: auto 1fr;
+    align-items: center; 
+    border-top: 0;
+}
+
+.masksBackground {
+    display: grid;
+    border: 2px solid #5d82b6; /* Temparory */
+    grid-template-rows: auto 1fr;
+    align-items: center; 
+    border-top: 0;
+}
+
+.masksGamesTitle, .masksBackgroundTitle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    border-bottom: 2px solid #5d82b6;
+}
+
+.masksListGamesContainer, .masksListBackgroundContainer {
+    display: flex;
+    height: 100%;
+    overflow-y: auto;
+    border: 0
+}
+
+.masksGamesTitleStyle, .masksBackgroundTitleStyle {
+    font-size: 12pt;
+    font-family: century gothic;
+    color: #fff;
+}
+
+.hidden {
+    display: none;
+}
+

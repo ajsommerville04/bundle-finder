@@ -1,0 +1,93 @@
+.fileExplorerContainer {
+    background: #2d3239;
+    min-width: 200px;
+    max-width: 200px;
+    position: relative;
+    border-bottom: 2px solid #5d82b6;
+    border-right: 2px solid #5d82b6;
+}
+
+.resizer {
+    width: 4px; /* Width of the resizer handle */
+    background-color: transparent; /* Invisible by default */
+    cursor: ew-resize; /* Left-right resize cursor */
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+.resizer:hover {
+    background-color: orange;
+    transition-delay:1s;
+}
+
+.filesContainer {
+    color: #fff;
+    font-family: century gothic;
+    white-space: nowrap;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 250px;
+}
+
+.topExplorerContainer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    border-bottom: 2px solid #5d82b6;
+}
+
+.runButtonContainer {
+    width: 50px;
+    height: 40px;
+    display: flex;
+    justify-content: center; /* Horizontally center the button */
+    align-items: center; /* Vertically center the button */
+}
+
+.folderFiles {
+    background-color: #1c1f23;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    color: #fff;
+    font-family: century gothic;
+    white-space: nowrap;
+    border-radius: 4px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.folderTitle {
+    font-size: 15px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+}
+
+
+#runGameFinder {
+    color: #ffffff;
+    font-family: century gothic;
+    background-color: rgb(13, 13, 198);
+    border: rgb(2, 2, 65);
+    border-radius: 6px;
+    cursor: pointer;
+    padding:5px;
+    font-size: 14px;
+    outline: 0;
+}
+
+#runGameFinder:hover {
+    background-color: rgb(3, 3, 49);;
+}
+
+.exploredFilesContainer {
+    display: flex;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    flex-direction: column;
+    max-height: 350px;
+}

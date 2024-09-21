@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Bundle Finder</title>
+        <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+        <link rel="stylesheet" href="../css/imageContainer.css">
+        <link rel="stylesheet" href="../css/titleBar.css">
+        <link rel="stylesheet" href="../css/fileExplorer.css">
+        <link rel="stylesheet" href="../css/gameAssigner.css">
+        <link rel="stylesheet" href="../css/mainpage.css">
+
+        <script src="../js/titleBar.js" defer></script>
+        
+
+    </head>
+    <body>
+        <div class="container">
+            <div class="titleBar titleBarStyle">
+                <img src="../logos/bundle.png" class="windowIcon" alt="App Icon">
+                <!--Add Menu Bar Here-->
+                <div class="windowControls windowControlsStyle">
+                    <button id="minimize">-</button>
+                    <button id="maximize">□</button>
+                    <button id="quit">x</button>
+                </div>
+            </div>
+            <div class="mainScreen">
+                <div class="fileExplorerContainer fileExplorerStylesContainer">
+                    <div class="resizer"></div>
+                    <div class="filesContainer"></div>
+                    <div class="topExplorerContainer">
+                        <div class="folderFiles">
+                            <div class="folderTitle"></div>
+                        </div>
+                        <div class="runButtonContainer">
+                            <button id="runGameFinder">Run</button>
+                        </div>
+                    </div>
+                    <div class="exploredFilesContainer"></div>
+                </div>
+                <div class="imageDisplayerContainer" id="dropzone">
+                    <!--<img src="../logos/add-image-logo.png" alt="imageImage" class="imageImage">-->
+                </div>
+                
+                <div class="gameAssignerContainer gameAssignerContainerStyles">
+                    <div class="masksGames">
+                        <div class="masksGamesTitle masksGamesTitleStyle">Masks of Games</div>
+                        <div class="masksListGamesContainer"></div>
+                    </div>
+                    <div class="masksBackground">
+                        <div class="masksBackgroundTitle masksBackgroundTitleStyle">Masks of Background</div>
+                        <div class="masksListBackgroundContainer"></div>
+                    </div>
+                </div>
+
+            </div>
+            
+        </div>
+
+        <script src="../js/handleImage.js"></script>
+    </body>
+</html>
