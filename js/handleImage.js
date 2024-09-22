@@ -43,19 +43,27 @@ function handleDrop (e) {
         if (file.type.startsWith('image/')) {
             //displays image on screen
             displayImage(file);
-            console.log('file:', file)
-            window.electronAPI.tempFileCreate(file)
-            .then(tempFilePath => {
-                console.log('tempPath:', tempFilePath)
-            })
-            
+            const backEndReader = new FileReader();
+            backEndReader.onload = async (event) => {
+                const fileBuffer = event.target.result; // This is an ArrayBuffer
+                try {
+                    const tempFilePath = await window.electronAPI.tempFileCreate(file.name, fileBuffer);
+                    console.log('Temporary file created at:', tempFilePath);
+                } catch (error) {
+                    console.error('Error creating temporary file:', error);
+                }
+            };
+            backEndReader.readAsArrayBuffer(file); // Read file as ArrayBuffer
+        } else {
+            console.error('No file selected');
+            }
             
         } else {
             clearDisplay();
             alert('Please drop an image file.');
         }
     }
-}
+
 
 function displayImage(file) {
     const frontEndReader = new FileReader();

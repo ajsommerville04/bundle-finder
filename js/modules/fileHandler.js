@@ -4,20 +4,43 @@ const crypto = require('crypto')
 const path = require('path');
 
 
-function tempFileCreate(file) {
+async function tempFileCreate(filename, buffer) {
     // Store the image temporarily
-    console.log(file)
+    console.log(filename);
     const tempDir = os.tmpdir(); // Get the OS's temp directory
-    const appTempDir = path.join(tempDir, 'basic-gui')
-    const tempTempFilePath = path.join(tempDir, file.name);
+    const appTempDir = path.join(tempDir, 'basic-gui');
     
-    // Read the file and write it to a temporary location
-    
-    saveImage(file, tempTempFilePath)
-    const tempFilePath = createUniqueDirectory(tempTempFilePath, appTempDir)
-    const tempFile = path.join(tempFilePath, "img.webp")
-    saveImage(file, tempFile)
+    // Ensure the appTempDir exists
+    if (!fs.existsSync(appTempDir)) {
+        fs.mkdirSync(appTempDir, { recursive: true });
+    }
 
+    const tempTempFilePath = path.join(tempDir, filename);
+    
+    // Convert buffer to a Buffer instance
+    const fileBuffer = Buffer.from(new Uint8Array(buffer));
+
+    // Write the temporary file
+    try {
+        await fs.promises.writeFile(tempTempFilePath, fileBuffer);
+    } catch (error) {
+        console.error('Error writing temporary file:', error);
+        throw error; // Handle error as needed
+    }
+
+    // Create a unique directory and get its path
+    const tempFilePath = createUniqueDirectory(tempTempFilePath, appTempDir);
+    const tempFile = path.join(tempFilePath, "img.webp");
+
+    // Write the final image file to the unique directory
+    try {
+        await fs.promises.writeFile(tempFile, fileBuffer);
+    } catch (error) {
+        console.error('Error writing final image file:', error);
+        throw error; // Handle error as needed
+    }
+
+    // Delete the temporary file
     fs.unlink(tempTempFilePath, (err) => {
         if (err) {
             console.error(`Error deleting temp file: ${err.message}`);
@@ -26,32 +49,13 @@ function tempFileCreate(file) {
         }
     });
 
-
-
-    return tempFile
-}
-
-function saveImage(file, tempFileName) {
-    const reader = new FileReader();
-    reader.onload = function (event) {
-        const buffer = Buffer.from(new Uint8Array(event.target.result));
-        fs.writeFile(tempFileName, buffer, (err) => {
-            if (err) {
-                console.error('Error writing temp temp file:', err);
-            } else {
-                console.log('Temporary Temporary file saved:', tempFileName);
-            }
-        });
-    };
-    reader.readAsArrayBuffer(file); // Read file as array buffer
-
+    return tempFile; // Return the path of the final image file
 }
 
 function generateImageHash(imagePath) {
     try {
         const imageBuffer = fs.readFileSync(imagePath);  // Read the image file into a buffer
-
-        // Create a hash of the image using SHA-256 (or MD5, SHA-1, etc.)
+        // Create a hash of the image using SHA-256
         const hash = crypto.createHash('sha256').update(imageBuffer).digest('hex');
         return hash;
     } catch (error) {

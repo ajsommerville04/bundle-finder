@@ -28,10 +28,9 @@ function initializeIpcHandlers(mainWindow) {
 }
 
 function initializeIpcHandlersNonWindowEvent() {
-  ipcMain.handle('temp-file-create', async (event, file) => {
-    console.log('file:', file)
+  ipcMain.handle('temp-file-create', async (event, [filename, fileBuffer]) => {
     try {
-      const result = await tempFileCreate(file);
+      const result = await tempFileCreate(filename, fileBuffer);
       return result;
     } catch (error) {
       console.error('Error in temp-file-create handler', error)
