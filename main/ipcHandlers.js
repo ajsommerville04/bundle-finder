@@ -1,4 +1,5 @@
 const { ipcMain } = require('electron');
+const { tempFileCreate } = require('../js/modules/fileHandler.js')
 
 function initializeIpcHandlers(mainWindow) {
   ipcMain.on('minimize-window', () => {
@@ -22,6 +23,21 @@ function initializeIpcHandlers(mainWindow) {
       mainWindow.close();
     }
   });
+
+
 }
 
-module.exports = { initializeIpcHandlers };
+function initializeIpcHandlersNonWindowEvent() {
+  ipcMain.handle('temp-file-create', async (event, file) => {
+    console.log('file:', file)
+    try {
+      const result = await tempFileCreate(file);
+      return result;
+    } catch (error) {
+      console.error('Error in temp-file-create handler', error)
+    }
+    
+  });
+}
+
+module.exports = { initializeIpcHandlers, initializeIpcHandlersNonWindowEvent };

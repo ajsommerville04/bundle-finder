@@ -1,8 +1,14 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const { initializeIpcHandlers } = require('./ipcHandlers');
+const { initializeIpcHandlers, initializeIpcHandlersNonWindowEvent } = require('./ipcHandlers');
+const os = require('os')
+const fs = require('fs')
+
 
 let mainWindow;
+let cleanupDone = false;
+
+initializeIpcHandlersNonWindowEvent()
 
 function createMainWindow() {
     mainWindow = new BrowserWindow({
@@ -23,8 +29,29 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
-    createMainWindow();
-    initializeIpcHandlers(mainWindow);
+  createMainWindow();
+  initializeIpcHandlers(mainWindow);
+});
+
+app.once('before-quit', () => {
+  if (cleanupDone) return;
+  try {
+    const dirPath = path.join(os.tmpdir(), 'basic-gui');  // Your temp directory
+    if (fs.existsSync(dirPath)) {
+        fs.rmSync(dirPath, { recursive: true, force: true });
+        console.log('Temp directory removed successfully.');
+        cleanupDone = true
+        app.quit();
+    } else {
+        console.log('Temp directory does not exist.');
+        cleanupDone = false
+        app.quit();
+        
+    }
+} catch (err) {
+    console.error('Failed to remove temp directory:', err);
+    process.exit(1);  // Optionally exit if it's critical
+  }
 });
 
 app.on('window-all-closed', () => {

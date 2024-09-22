@@ -43,8 +43,12 @@ function handleDrop (e) {
         if (file.type.startsWith('image/')) {
             //displays image on screen
             displayImage(file);
-            //tempFilePath = fileHandler.tempFileCreate(file)
-            //console.log("The temp file path:", tempFilePath)
+            console.log('file:', file)
+            window.electronAPI.tempFileCreate(file)
+            .then(tempFilePath => {
+                console.log('tempPath:', tempFilePath)
+            })
+            
             
         } else {
             clearDisplay();
@@ -54,8 +58,8 @@ function handleDrop (e) {
 }
 
 function displayImage(file) {
-    const reader = new FileReader();
-    reader.onload = function (e) {
+    const frontEndReader = new FileReader();
+    frontEndReader.onload = function (e) {
         const img = document.createElement('img');
         img.src = e.target.result;
         img.classList.add('dropped-image'); // Add a class for styling
@@ -63,7 +67,7 @@ function displayImage(file) {
         dropzoneBox.innerHTML = '';
         dropzoneBox.appendChild(img);
     }
-    reader.readAsDataURL(file);
+    frontEndReader.readAsDataURL(file);
     
 }
 

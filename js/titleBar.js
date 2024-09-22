@@ -1,5 +1,6 @@
 
 document.getElementById('minimize').addEventListener('click', () => {
+    console.log("minimise clicked")
     window.electronAPI.minimizeWindow();
 });
 
