@@ -16,7 +16,7 @@ function createMainWindow() {
         width: 1000,
         height: 800,
         minHeight: 650,
-        minWidth: 600,
+        minWidth: 900,
         frame: false,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),

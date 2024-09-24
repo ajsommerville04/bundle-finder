@@ -1,5 +1,6 @@
-const { ipcMain } = require('electron');
+const { ipcMain, dialog } = require('electron');
 const { tempFileCreate } = require('../js/modules/fileHandler.js')
+const { runScript } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
   ipcMain.on('minimize-window', () => {
@@ -28,14 +29,31 @@ function initializeIpcHandlers(mainWindow) {
 }
 
 function initializeIpcHandlersNonWindowEvent() {
+  let tempFilePath;
+
   ipcMain.handle('temp-file-create', async (event, [filename, fileBuffer]) => {
     try {
-      const result = await tempFileCreate(filename, fileBuffer);
-      return result;
+      tempFilePath = await tempFileCreate(filename, fileBuffer);
+      return tempFilePath;
     } catch (error) {
       console.error('Error in temp-file-create handler', error)
     }
     
+  });
+
+  ipcMain.handle('run-game-finder', async (event, scriptName) => {
+    console.log("Attempting to run game finder with tempFilePath:", tempFilePath);
+    console.log("The script:", scriptName)
+    if (!tempFilePath) {
+      dialog.showErrorBox("Error", "No Image Selected");
+      return;
+    }
+    try {
+      await runScript(scriptName, tempFilePath);
+    } catch (error) {
+      console.error("Error running python script", error.message);
+    }
+
   });
 }
 

@@ -8,5 +8,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   closeWindow: () => ipcRenderer.send('close-window'),
 
   tempFileCreate: (fileName, fileBuffer) => ipcRenderer.invoke('temp-file-create', [fileName, fileBuffer]),
+  runGameFinder: (scriptName) => ipcRenderer.invoke("run-game-finder", scriptName)
 });
 

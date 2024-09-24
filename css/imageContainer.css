@@ -6,9 +6,10 @@
     width: 100%; /* Full width of the container */
     height: 100%; /* Full height of the container */
     overflow: hidden; /* Hide overflow */
-    min-width: 0; 
+    min-width: 500px; 
     min-height: 0;
     flex: 1; /* Allow to grow and shrink */
+    border-bottom: 2px solid #5d82b6;
 }
 
 .imageDisplayerContainer:hover {

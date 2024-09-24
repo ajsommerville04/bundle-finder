@@ -1,7 +1,6 @@
 .gameAssignerContainer {
     display: grid;
     height: 100%;
-    width: 20%;
     min-width: 200px;
     background-color: #1c1f23;
     grid-template-rows: auto auto;
