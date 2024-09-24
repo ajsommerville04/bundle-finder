@@ -27,12 +27,24 @@ runGameFinder.addEventListener('click', async function() {
             tab.className = 'tab';
             tab.textContent = file.substring(0, file.lastIndexOf('.')); // Set tab text to the file name or relevant information
             gameAssigner.appendChild(tab);
-            //tab.addEventListener('click', handleTabClick);
+            tab.addEventListener('click', handleTabClick);
         });
     } catch (error) {
         console.error("Error running script and adding tabs", error)
 
     };
 });
+
+// Function to handle tab clicks
+function handleTabClick(event) {
+    // Add 'active' class to the clicked tab
+    const tab = event.currentTarget;
+     // If the tab already has the 'active' class, remove it (unactivate)
+     if (tab.classList.contains('active')) {
+        tab.classList.remove('active');
+    } else {
+        tab.classList.add('active');
+    }
+}
 
 

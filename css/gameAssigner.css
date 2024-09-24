@@ -1,25 +1,17 @@
 .gameAssignerContainer {
     display: grid;
-    height: 100%;
+    max-height: 100%;
     min-width: 200px;
     background-color: #1c1f23;
-    grid-template-rows: auto auto;
+    grid-template-rows: 1fr, 1fr;
 }
 
-.masksGames {
-    display: grid;
-    border: 2px solid #5d82b6; /* Temparory */
-    grid-template-rows: auto 1fr;
-    align-items: center; 
-    border-top: 0;
-}
-
-.masksBackground {
+.masksGames, .masksBackground {
     display: grid;
     border: 2px solid #5d82b6; /* Temparory */
     grid-template-rows: auto minmax(0, 1fr);
-    align-items: center; 
     border-top: 0;
+    min-height: 0;
 }
 
 .masksGamesTitle, .masksBackgroundTitle {
@@ -35,7 +27,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     border: 0;
-    height: 100%;
+    max-height: 100%;
 }
 
 .masksGamesTitleStyle, .masksBackgroundTitleStyle {
@@ -50,9 +42,7 @@
 
 .tab {
     padding: 10px;
-    margin-bottom: 10px;
     border: 1px solid #ddd;
-    border-radius: 4px;
     background-color: #fff;
     cursor: pointer;
 }
