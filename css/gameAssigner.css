@@ -17,7 +17,7 @@
 .masksBackground {
     display: grid;
     border: 2px solid #5d82b6; /* Temparory */
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
     align-items: center; 
     border-top: 0;
 }
@@ -31,10 +31,11 @@
 }
 
 .masksListGamesContainer, .masksListBackgroundContainer {
-    display: flex;
-    height: 100%;
+    display: grid;
     overflow-y: auto;
-    border: 0
+    overflow-x: hidden;
+    border: 0;
+    height: 100%;
 }
 
 .masksGamesTitleStyle, .masksBackgroundTitleStyle {
@@ -45,5 +46,24 @@
 
 .hidden {
     display: none;
+}
+
+.tab {
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    cursor: pointer;
+}
+
+.tab:hover {
+    background-color: #f0f0f0;
+}
+
+.tab.active {
+    background-color: #4CAF50; 
+    color: #fff; 
+    border-color: #4CAF50; 
 }
 

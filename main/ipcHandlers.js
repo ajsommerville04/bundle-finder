@@ -49,7 +49,9 @@ function initializeIpcHandlersNonWindowEvent() {
       return;
     }
     try {
-      await runScript(scriptName, tempFilePath);
+      const sortedFiles = await runScript(scriptName, tempFilePath);
+      console.log("the sorted files:", sortedFiles)
+      return sortedFiles;
     } catch (error) {
       console.error("Error running python script", error.message);
     }

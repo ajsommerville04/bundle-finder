@@ -2,6 +2,7 @@
 console.log('image-segmentation file loaded');
 
 const runGameFinder = document.getElementById("runGameFinder");
+const gameAssigner = document.getElementById("gameslist")
 
 // Check if the runGameFinder is selected correctly
 if (runGameFinder) {
@@ -10,7 +11,28 @@ if (runGameFinder) {
     console.error('run-game-finder box not found');
 }
 
-runGameFinder.addEventListener('click', function() {
+runGameFinder.addEventListener('click', async function() {
     console.log("run-button clicked")
-    window.electronAPI.runGameFinder("find-all-masks");
-})
+    try {
+        const files = await window.electronAPI.runGameFinder("find-all-masks");
+        
+        if (!files || files.length === 0) {
+            console.error("No files were generated or returned")
+        return;
+        }
+        console.log("files", files)
+        files.forEach(file => {
+            console.log("file:", file)
+            const tab = document.createElement('div');
+            tab.className = 'tab';
+            tab.textContent = file.substring(0, file.lastIndexOf('.')); // Set tab text to the file name or relevant information
+            gameAssigner.appendChild(tab);
+            //tab.addEventListener('click', handleTabClick);
+        });
+    } catch (error) {
+        console.error("Error running script and adding tabs", error)
+
+    };
+});
+
+
