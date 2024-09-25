@@ -15,19 +15,20 @@ if (runGameFinder) {
 runGameFinder.addEventListener('click', async function() {
     console.log("run-button clicked")
     try {
-        const files = await window.electronAPI.runGameFinder("find-all-masks");
+        const [files, imagesDirPath] = await window.electronAPI.runGameFinder("find-all-masks");
         
         if (!files || files.length === 0) {
             console.error("No files were generated or returned")
         return;
         }
         gameAssigner.classList.remove('hidden');
-        console.log(gameAssigner.classList)
         console.log("files", files)
+        console.log("path", imagesDirPath)
         files.forEach(file => {
             console.log("file:", file)
             const tab = document.createElement('div');
             tab.className = 'tab';
+            tab.setAttribute('data-image', imagesDirPath + file);
             tab.textContent = file.substring(0, file.lastIndexOf('.')); // Set tab text to the file name or relevant information
             gameList.appendChild(tab);
             tab.addEventListener('click', handleTabClick);

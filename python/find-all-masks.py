@@ -163,8 +163,13 @@ def find_all_masks(IMG_PATH):
         print("Failed")
 
     for idx, mask_array in enumerate(combined_masks):
-        file_path = os.path.join(mask_bin_path, f"{idx}.tiff")
-        tf.imwrite(file_path, mask_array['segmentation'])
+        file_path = os.path.join(mask_bin_path, f"{idx}.png")
+        image = np.uint8(mask_array['segmentation'] * 255)
+        cv2.imwrite(file_path, image)
+
+        #save .tiff
+        #file_path = os.path.join(mask_bin_path, f"{idx}.tiff")
+        #tf.imwrite(file_path, mask_array['segmentation'])
 
     features = [shape['features'] for shape in added_features]
 

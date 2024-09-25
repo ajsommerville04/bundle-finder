@@ -1,5 +1,5 @@
 const { ipcMain, dialog } = require('electron');
-const { tempFileCreate } = require('../js/modules/fileHandler.js')
+const { tempFileCreate, join } = require('../js/modules/fileHandler.js')
 const { runScript } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
@@ -49,9 +49,9 @@ function initializeIpcHandlersNonWindowEvent() {
       return;
     }
     try {
-      const sortedFiles = await runScript(scriptName, tempFilePath);
+      const files = await runScript(scriptName, tempFilePath);
       console.log("the sorted files:", sortedFiles)
-      return sortedFiles;
+      return files
     } catch (error) {
       console.error("Error running python script", error.message);
     }

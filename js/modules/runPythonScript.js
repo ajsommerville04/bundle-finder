@@ -25,6 +25,8 @@ function runScript(scriptName, imagePath) {
         pythonProcess.on('close', (code) => {
             console.log(`Python process exited with code ${code}`);
             const gameImgFiles = path.join(path.dirname(imagePath), 'mask-bin');
+            const fileSeparator = path.sep;
+            const basePath = gameImgFiles + fileSeparator
 
             fs.readdir(gameImgFiles, (err, files) => {
                 if (err) {
@@ -56,7 +58,7 @@ function runScript(scriptName, imagePath) {
                 
 
                 sortedFiles = files.sort(naturalCompare);
-                resolve(sortedFiles);
+                resolve([sortedFiles, basePath]);
             });
         });
     });
