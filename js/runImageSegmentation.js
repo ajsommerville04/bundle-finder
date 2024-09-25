@@ -2,7 +2,8 @@
 console.log('image-segmentation file loaded');
 
 const runGameFinder = document.getElementById("runGameFinder");
-const gameAssigner = document.getElementById("gameslist")
+const gameList = document.getElementById("gameslist");
+const gameAssigner = document.getElementById("gameAssignerContainer");
 
 // Check if the runGameFinder is selected correctly
 if (runGameFinder) {
@@ -20,13 +21,15 @@ runGameFinder.addEventListener('click', async function() {
             console.error("No files were generated or returned")
         return;
         }
+        gameAssigner.classList.remove('hidden');
+        console.log(gameAssigner.classList)
         console.log("files", files)
         files.forEach(file => {
             console.log("file:", file)
             const tab = document.createElement('div');
             tab.className = 'tab';
             tab.textContent = file.substring(0, file.lastIndexOf('.')); // Set tab text to the file name or relevant information
-            gameAssigner.appendChild(tab);
+            gameList.appendChild(tab);
             tab.addEventListener('click', handleTabClick);
         });
     } catch (error) {
