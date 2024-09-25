@@ -4,6 +4,8 @@ console.log('image-segmentation file loaded');
 const runGameFinder = document.getElementById("runGameFinder");
 const gameList = document.getElementById("gameslist");
 const gameAssigner = document.getElementById("gameAssignerContainer");
+const dropzone = document.getElementById("dropzone")
+
 
 // Check if the runGameFinder is selected correctly
 if (runGameFinder) {
@@ -22,16 +24,24 @@ runGameFinder.addEventListener('click', async function() {
         return;
         }
         gameAssigner.classList.remove('hidden');
-        console.log("files", files)
-        console.log("path", imagesDirPath)
-        files.forEach(file => {
-            console.log("file:", file)
+        files.forEach((file, index) => {
             const tab = document.createElement('div');
-            tab.className = 'tab';
+            tab.className = 'tab active';
             tab.setAttribute('data-image', imagesDirPath + file);
-            tab.textContent = file.substring(0, file.lastIndexOf('.')); // Set tab text to the file name or relevant information
+            const tabName = file.substring(0, file.lastIndexOf('.'))
+            tab.id = 'file' + tabName
+            tab.textContent = tabName; // Set tab text to the file name or relevant information
             gameList.appendChild(tab);
             tab.addEventListener('click', handleTabClick);
+
+            const maskImage = document.createElement('img');
+            maskImage.className = 'maskImage';
+            maskImage.src = imagesDirPath + file;
+            maskImage.id = 'file' + tabName
+            dropzone.appendChild(maskImage)
+            maskImage.style.position = 'absolute'; 
+            maskImage.style.zIndex = 10 + index;
+
         });
     } catch (error) {
         console.error("Error running script and adding tabs", error)
@@ -43,11 +53,17 @@ runGameFinder.addEventListener('click', async function() {
 function handleTabClick(event) {
     // Add 'active' class to the clicked tab
     const tab = event.currentTarget;
+    const currentTabID = tab.id ;
+    const currentMaskedImage = document.getElementById(currentTabID);
      // If the tab already has the 'active' class, remove it (unactivate)
      if (tab.classList.contains('active')) {
         tab.classList.remove('active');
+        currentMaskedImage.classList.add('hidden');
+
+
     } else {
         tab.classList.add('active');
+        currentMaskedImage.classList.remove('hidden');
     }
 }
 

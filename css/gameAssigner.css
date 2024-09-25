@@ -45,6 +45,7 @@
     border: 1px solid #ddd;
     background-color: #fff;
     cursor: pointer;
+    max-height: 40px;
 }
 
 .tab:hover {

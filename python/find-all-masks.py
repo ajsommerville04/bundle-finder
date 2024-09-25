@@ -165,7 +165,11 @@ def find_all_masks(IMG_PATH):
     for idx, mask_array in enumerate(combined_masks):
         file_path = os.path.join(mask_bin_path, f"{idx}.png")
         image = np.uint8(mask_array['segmentation'] * 255)
-        cv2.imwrite(file_path, image)
+        alpha_channel = np.where(image == 0, 0, 255).astype(np.uint8)  # 0 where image is black, 255 otherwise
+
+        # Stack the image and alpha channel to create a 4-channel image
+        rgba_image = cv2.merge((image, image, image, alpha_channel))
+        cv2.imwrite(file_path, rgba_image)
 
         #save .tiff
         #file_path = os.path.join(mask_bin_path, f"{idx}.tiff")
