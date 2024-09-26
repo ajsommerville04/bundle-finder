@@ -108,7 +108,7 @@ def find_all_masks(IMG_PATH):
         raise TypeError("Failed to load the image.")
     
     #need to make checkpoint folder
-    sam = sam_model_registry["vit_l"](checkpoint="python\\checkpoints\\sam_vit_l_0b3195.pth")
+    sam = sam_model_registry["vit_h"](checkpoint="python\\checkpoints\\sam_vit_h_4b8939.pth")
     device = "cuda"
     sam.to(device=device)
 
