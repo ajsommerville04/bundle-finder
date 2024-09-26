@@ -82,4 +82,9 @@ function createUniqueDirectory(imagePath, baseDir) {
     }
 }
 
-module.exports = { tempFileCreate };
+function readJson(jsonFilePath) {
+    const data = fs.readFileSync(jsonFilePath, "utf-8");
+    return JSON.parse(data);
+}
+
+module.exports = { tempFileCreate, readJson };

@@ -9,5 +9,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   tempFileCreate: (fileName, fileBuffer) => ipcRenderer.invoke('temp-file-create', [fileName, fileBuffer]),
   runGameFinder: (scriptName) => ipcRenderer.invoke("run-game-finder", scriptName),
+  readJson: (jsonFilePath) => ipcRenderer.invoke("readjson", jsonFilePath),
 });
 

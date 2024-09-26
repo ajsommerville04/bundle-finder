@@ -24,42 +24,9 @@ function runScript(scriptName, imagePath) {
         // Detect when the Python process ends
         pythonProcess.on('close', (code) => {
             console.log(`Python process exited with code ${code}`);
-            const gameImgFiles = path.join(path.dirname(imagePath), 'mask-bin');
             const fileSeparator = path.sep;
-            const basePath = gameImgFiles + fileSeparator
-
-            fs.readdir(gameImgFiles, (err, files) => {
-                if (err) {
-                    return console.error('Unable to read directory: ' + err);
-                }
-
-                // Natural sort comparison function
-                function naturalCompare(a, b) {
-                    const regex = /(\d+)|(\D+)/g;
-                    const aParts = a.match(regex);
-                    const bParts = b.match(regex);
-
-                    for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
-                        const aPart = aParts[i];
-                        const bPart = bParts[i];
-
-                        if (!isNaN(aPart) && !isNaN(bPart)) {
-                            const numA = parseInt(aPart, 10);
-                            const numB = parseInt(bPart, 10);
-                            if (numA !== numB) return numA - numB;
-                        } else if (aPart !== bPart) {
-                            return aPart.localeCompare(bPart);
-                        }
-                    }
-
-                    return aParts.length - bParts.length;
-                }
-
-                
-
-                sortedFiles = files.sort(naturalCompare);
-                resolve([sortedFiles, basePath]);
-            });
+            const basePath = path.dirname(imagePath) + fileSeparator;
+            resolve(basePath);
         });
     });
 }

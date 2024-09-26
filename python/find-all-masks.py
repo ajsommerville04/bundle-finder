@@ -140,6 +140,7 @@ def save_masks_to_directory(masks, clusters, base_dir):
         else:
             group_name = "games"
         mask_metadata[group_name][f"mask{i}"] = {
+            "name" : f"mask{i}",
             "filePath": save_path,
             "area": shape["area"],
             "bbox": shape["bbox"],
@@ -239,7 +240,7 @@ def find_all_masks(IMG_PATH):
 
     print(f"{dt.now()}: Masks Saving")
     sys.stdout.flush()
-    base_dir = os.path.dirname(base_dir)
+    base_dir = os.path.dirname(IMG_PATH)
     save_masks_to_directory(combined_masks, clusters, base_dir)
 
     

@@ -1,7 +1,7 @@
 .gameAssignerContainer {
     display: grid;
     max-height: 100%;
-    min-width: 200px;
+    min-width: 300px;
     background-color: #1c1f23;
     grid-template-rows: 1fr, 1fr;
 }
@@ -41,9 +41,10 @@
 }
 
 .tab {
-    padding: 10px;
-    border: 1px solid #ddd;
-    background-color: #fff;
+    border: 2px #1c1f23 solid;
+    display: grid;
+    color: #fff; 
+    grid-template-columns: auto 1fr auto auto auto;
     cursor: pointer;
     max-height: 40px;
     user-select: none;
@@ -52,12 +53,22 @@
 }
 
 .tab:hover {
-    background-color: #f0f0f0;
+    border: 2px orange dashed;
 }
 
 .tab.active {
-    background-color: #4CAF50; 
-    color: #fff; 
-    border-color: #4CAF50; 
+    border: 2px orange solid;
+}
+
+.tab-button {
+    background-color: #1c1f23;
+    color: #fff;
+    border: 0;
+}
+
+.tab-button {
+    background-color: #1c1f23;
+    color: #fff;
+    border: 0;
 }
 

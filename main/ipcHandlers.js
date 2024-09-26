@@ -1,5 +1,5 @@
 const { ipcMain, dialog } = require('electron');
-const { tempFileCreate, join } = require('../js/modules/fileHandler.js')
+const { tempFileCreate, readJson } = require('../js/modules/fileHandler.js')
 const { runScript } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
@@ -49,14 +49,21 @@ function initializeIpcHandlersNonWindowEvent() {
       return;
     }
     try {
-      const files = await runScript(scriptName, tempFilePath);
-      console.log("the sorted files:", sortedFiles)
-      return files
+      const filePath = await runScript(scriptName, tempFilePath);
+      return filePath
     } catch (error) {
       console.error("Error running python script", error.message);
     }
-
   });
+
+  ipcMain.handle("readjson", async (event, jsonFilePath) => {
+    try {
+      const data = readJson(jsonFilePath)
+      return data
+    } catch (error) {
+      console.error('Error loading data:', error)
+    }
+  })
 }
 
 module.exports = { initializeIpcHandlers, initializeIpcHandlersNonWindowEvent };
