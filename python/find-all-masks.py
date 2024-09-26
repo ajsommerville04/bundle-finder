@@ -2,12 +2,12 @@ import numpy as np
 import sys
 import cv2
 import os
-import tifffile as tf
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
 from segment_anything import SamAutomaticMaskGenerator, sam_model_registry
 import handle_masks
 from datetime import datetime as dt
+import json
 
 
 def add_features_to_dict(lst_dict):
@@ -94,6 +94,75 @@ def check_masks_for_overlap(lst):
     
     return combined_masks
 
+def save_masks_to_directory(masks, clusters, base_dir):
+    #make background of images transparent and save
+    def transparent(segmentaion, path):
+        png_image = np.uint8(segmentaion * 255)
+        alpha_channel = np.where(png_image == 0, 0, 255).astype(np.uint8)
+        rgba_image = cv2.merge((png_image, png_image, png_image, alpha_channel))
+        cv2.imwrite(path, rgba_image)
+
+    def serialize_data(obj):
+        # Check for NumPy types and convert them to standard Python types
+        if isinstance(obj, (np.ndarray, list)):
+            return obj.tolist()  # Convert numpy array or list to a standard list
+        elif isinstance(obj, (np.int32, np.int64)):
+            return int(obj)  # Convert NumPy int to standard int
+        elif isinstance(obj, (np.float32, np.float64)):
+            return float(obj)  # Convert NumPy float to standard float
+        return obj  # Return the object as is if it's already serializable
+
+    #create directory for all masks
+    '''
+    '''
+    
+    mask_bin_path = os.path.join(base_dir, 'mask-bin')
+
+    if not os.path.isdir(mask_bin_path):
+        os.mkdir(mask_bin_path)
+        print("Created successfully")
+    else:
+        print("Failed")
+
+    mask_metadata = {
+        "background": {},
+        "games": {}
+    } 
+    file_save_index = 0
+    for i, shape in enumerate(masks):
+        #background
+        
+        save_path = os.path.join(mask_bin_path, f"{file_save_index}.png")
+        transparent(shape["segmentation"], save_path)
+        
+        if clusters[i] ==1:
+            group_name = "background"
+        else:
+            group_name = "games"
+        mask_metadata[group_name][f"mask{i}"] = {
+            "filePath": save_path,
+            "area": shape["area"],
+            "bbox": shape["bbox"],
+            "internal": []
+        }
+
+        file_save_index +=1
+
+        for internal_mask in shape["internal_masks"]:
+            save_path = os.path.join(mask_bin_path, f"{file_save_index}.png")
+            transparent(internal_mask['segmentation'], save_path)
+            mask_metadata[group_name][f"mask{i}"]["internal"].append({
+                "filePath": save_path,
+                "area": internal_mask["area"],
+                "bbox": internal_mask["bbox"],
+            })
+            file_save_index +=1
+
+    json_file_path = os.path.join(base_dir, 'mask_metadata.json')
+    with open(json_file_path, 'w') as json_file:
+        json.dump(mask_metadata, json_file, indent=4, default=serialize_data)
+
+
 def find_all_masks(IMG_PATH):
     print(f"{dt.now()}: Starting")      
     # Load the image in WebP format
@@ -153,30 +222,7 @@ def find_all_masks(IMG_PATH):
     combined_masks = check_masks_for_overlap(resorted)
     added_features = add_features_to_dict(combined_masks)
 
-    mask_bin_path = os.path.join(os.path.dirname(IMG_PATH), 'mask-bin')
-    print(os.path.dirname(IMG_PATH))
-    print(mask_bin_path)
-    os.mkdir(mask_bin_path)
-    if os.path.isdir(mask_bin_path):
-        print("Created successfully")
-    else:
-        print("Failed")
-
-    for idx, mask_array in enumerate(combined_masks):
-        file_path = os.path.join(mask_bin_path, f"{idx}.png")
-        image = np.uint8(mask_array['segmentation'] * 255)
-        alpha_channel = np.where(image == 0, 0, 255).astype(np.uint8)  # 0 where image is black, 255 otherwise
-
-        # Stack the image and alpha channel to create a 4-channel image
-        rgba_image = cv2.merge((image, image, image, alpha_channel))
-        cv2.imwrite(file_path, rgba_image)
-
-        #save .tiff
-        #file_path = os.path.join(mask_bin_path, f"{idx}.tiff")
-        #tf.imwrite(file_path, mask_array['segmentation'])
-
     features = [shape['features'] for shape in added_features]
-
     scaler = StandardScaler()
     normalized_features = scaler.fit_transform(features)
 
@@ -191,20 +237,22 @@ def find_all_masks(IMG_PATH):
     print(f"{dt.now()}: Masks Split")
     sys.stdout.flush()
 
-    #used for making json and orginising files
-    grouped_shapes = [[] for _ in range(k)]
-    for i, shape in enumerate(added_features):
-        grouped_shapes[clusters[i]].append(shape)
+    print(f"{dt.now()}: Masks Saving")
+    sys.stdout.flush()
+    base_dir = os.path.dirname(base_dir)
+    save_masks_to_directory(combined_masks, clusters, base_dir)
+
+    
     
 
 
-    return grouped_shapes
+    
 
 if __name__ == '__main__':
     image_path = sys.argv[1]
     
     #add checks for type of image
-    inside, outside = find_all_masks(image_path)
+    find_all_masks(image_path)
 
     
 
