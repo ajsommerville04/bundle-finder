@@ -73,3 +73,9 @@
     border: 0;
 }
 
+.tab-button:disabled {
+    background-color: #1c1f23;
+    color: #1c1f23;
+
+}
+

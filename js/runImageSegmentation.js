@@ -71,7 +71,6 @@ function createTabDiv(mask, element, active=false) {
     tabHeaderPrimary.className = active ? 'tab active' : 'tab';
     tabHeaderPrimary.setAttribute('data-image', mask.filePath);
     tabHeaderPrimary.id = mask.name;
-    tab.draggable = true;
      
     //tabHeader
     // Create dropdown button
@@ -88,10 +87,45 @@ function createTabDiv(mask, element, active=false) {
     textContainer.textContent = mask.name;
     tabHeaderPrimary.appendChild(textContainer);
     tab.appendChild(tabHeaderPrimary)
-    
+
+    // tabFolder
+    tabFolder.className = 'tab-folder hidden';
+    mask.internal.forEach((maskInternal, index) => {
+        const tabHeaderSecondary = document.createElement('div')
+        tabHeaderSecondary.className = 'tab';
+        tabHeaderSecondary.setAttribute('data-image', maskInternal.filePath);
+        tabHeaderSecondary.id = mask.name + '@' + index;
+        
+        //tabHeader
+        // Create dropdown button
+        const dropdownButton = document.createElement('button');
+        dropdownButton.className = "tab-button";
+        dropdownButton.textContent = '>';
+        dropdownButton.id = "tabButtonDropdown";
+        dropdownButton.disabled = true;
+        tabHeaderSecondary.appendChild(dropdownButton);
+        
+        
+        // Create the container for text
+        const textContainer = document.createElement('div');
+        textContainer.className = 'text-container';
+        textContainer.textContent = mask.name + '@' + index;
+        tabHeaderSecondary.appendChild(textContainer);
+        tabFolder.appendChild(tabHeaderSecondary);
+
+        const maskImage = document.createElement('img');
+        maskImage.className = "maskImage hidden";
+        maskImage.src = maskInternal.filePath;
+        maskImage.id = "img_" + mask.name + '@' + index;
+        dropzone.appendChild(maskImage)
+        maskImage.style.position = 'absolute';
+
+        textContainer.addEventListener('click', handleTabClick);
+    });
+
+    tab.appendChild(tabFolder)
     element.appendChild(tab);
 
-    tab.addEventListener('dragstart', handleDragStart);
     textContainer.addEventListener('click', handleTabClick);
     dropdownButton.addEventListener("click", handleDropdownButtonClick);
 
@@ -104,35 +138,18 @@ function createTabDiv(mask, element, active=false) {
 }
 
 function handleDropdownButtonClick(event) {
-    const tab = event.currentTarget.parentElement;
-    console.log("Tab:", tab)
-}
+    // Get the parent 'tab' element
+    const tab = event.currentTarget.parentElement.parentElement;
+    
+    // Find the 'tabFolder' inside the parent 'tab'
+    const tabFolder = tab.querySelector('.tab-folder');
 
-
-gameList.addEventListener('dragover', handleDragOver);
-gameList.addEventListener('drop', handleDrop);
-
-backgroundList.addEventListener('dragover', handleDragOver);
-backgroundList.addEventListener('drop', handleDrop);
-
-function handleDragStart(event) {
-    event.dataTransfer.setData('text/plain', event.target.id);
-    console.log('Dragging tab with id:', event.target.id);
-}
-
-function handleDragOver(event) {
-    event.preventDefault();  
-}
-
-function handleDrop(event) {
-    event.preventDefault();
-    const id = event.dataTransfer.getData('text/plain'); // Retrieve the dragged tab's ID
-    const draggedElement = document.getElementById(id);
-
-    if (draggedElement) {
-        event.currentTarget.appendChild(draggedElement); // Append the tab to the drop target
-        console.log('Dropped tab with id:', id);
+    // Toggle the 'hidden' class on the 'tabFolder'
+    if (tabFolder.classList.contains('hidden')) {
+        tabFolder.classList.remove('hidden');
+        event.currentTarget.textContent = 'v';  // Change the dropdown button text to indicate it's expanded
     } else {
-        console.error('Dragged element not found');
+        tabFolder.classList.add('hidden');
+        event.currentTarget.textContent = '>';  // Change the dropdown button text back to indicate it's collapsed
     }
 }
