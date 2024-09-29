@@ -32,10 +32,12 @@ runGameFinder.addEventListener('click', async function() {
 
         Object.values(background).forEach(mask => {
             createTabDiv(mask, backgroundList); 
+            //console.log("Background:", mask)
         });
 
         Object.values(games).forEach(mask => {
             createTabDiv(mask, gameList, true);  
+            //console.log("Games:", mask)
         });
         
     } catch (error) {
@@ -46,9 +48,9 @@ runGameFinder.addEventListener('click', async function() {
 // Function to handle tab clicks
 function handleTabClick(event) {
     // Add 'active' class to the clicked tab
-    const tab = event.currentTarget;
+    const tab = event.currentTarget.parentElement;
     const currentTabID = tab.id ;
-    const currentMaskedImage = document.getElementById(currentTabID);
+    const currentMaskedImage = document.getElementById("img_" + currentTabID);
      // If the tab already has the 'active' class, remove it (unactivate)
      if (tab.classList.contains('active')) {
         tab.classList.remove('active');
@@ -63,56 +65,74 @@ function handleTabClick(event) {
 
 function createTabDiv(mask, element, active=false) {
     const tab = document.createElement('div');
-    tab.className = active ? 'tab active' : 'tab';
-    tab.setAttribute('data-image', mask.filePath);
-    tab.id = mask.name
+    const tabHeaderPrimary = document.createElement('div');
+    const tabFolder = document.createElement('div');
 
-    // Create buttons
-    const button1 = document.createElement('button');
-    button1.className = "tab-button";
-    button1.textContent = '1';
-    tab.appendChild(button1);
-
+    tabHeaderPrimary.className = active ? 'tab active' : 'tab';
+    tabHeaderPrimary.setAttribute('data-image', mask.filePath);
+    tabHeaderPrimary.id = mask.name;
+    tab.draggable = true;
+     
+    //tabHeader
+    // Create dropdown button
+    const dropdownButton = document.createElement('button');
+    dropdownButton.className = "tab-button";
+    dropdownButton.textContent = '>';
+    dropdownButton.id = "tabButtonDropdown";
+    tabHeaderPrimary.appendChild(dropdownButton);
+    
+    
     // Create the container for text
     const textContainer = document.createElement('div');
     textContainer.className = 'text-container';
-    textContainer.textContent = mask.name; // Or any relevant text
-    tab.appendChild(textContainer);
-
-    // Create additional buttons
-    const button2 = document.createElement('button');
-    button2.className = "tab-button";
-    button2.textContent = '2';
-    tab.appendChild(button2);
-
-    const button3 = document.createElement('button');
-    button3.className = "tab-button";
-    button3.textContent = '3';
-    tab.appendChild(button3);
-
-    const button4 = document.createElement('button');
-    button4.className = "tab-button";
-    button4.textContent = '4';
-    tab.appendChild(button4);
-
+    textContainer.textContent = mask.name;
+    tabHeaderPrimary.appendChild(textContainer);
+    tab.appendChild(tabHeaderPrimary)
+    
     element.appendChild(tab);
-    tab.addEventListener('click', handleTabClick);
+
+    tab.addEventListener('dragstart', handleDragStart);
+    textContainer.addEventListener('click', handleTabClick);
+    dropdownButton.addEventListener("click", handleDropdownButtonClick);
 
     const maskImage = document.createElement('img');
     maskImage.className = active ? 'maskImage': "maskImage hidden";
     maskImage.src = mask.filePath;
-    maskImage.id = mask.name
+    maskImage.id = "img_" + mask.name
     dropzone.appendChild(maskImage)
     maskImage.style.position = 'absolute'; 
 }
 
-function createButton(textContent, id) {
-    const button = document.createElement('button');
-    button.className = "tab-button";
-    button.textContent = textContent
-    button.id = id
-    tab.appendChild(button)
-
+function handleDropdownButtonClick(event) {
+    const tab = event.currentTarget.parentElement;
+    console.log("Tab:", tab)
 }
 
 
+gameList.addEventListener('dragover', handleDragOver);
+gameList.addEventListener('drop', handleDrop);
+
+backgroundList.addEventListener('dragover', handleDragOver);
+backgroundList.addEventListener('drop', handleDrop);
+
+function handleDragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.id);
+    console.log('Dragging tab with id:', event.target.id);
+}
+
+function handleDragOver(event) {
+    event.preventDefault();  
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    const id = event.dataTransfer.getData('text/plain'); // Retrieve the dragged tab's ID
+    const draggedElement = document.getElementById(id);
+
+    if (draggedElement) {
+        event.currentTarget.appendChild(draggedElement); // Append the tab to the drop target
+        console.log('Dropped tab with id:', id);
+    } else {
+        console.error('Dragged element not found');
+    }
+}
