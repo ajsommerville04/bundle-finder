@@ -1,155 +1,199 @@
 // Debugging: Check if the script is loaded
 console.log('image-segmentation file loaded');
 
+// Get necessary DOM elements
 const runGameFinder = document.getElementById("runGameFinder");
 const gameList = document.getElementById("gameslist");
-const backgroundList = document.getElementById("backgroundlist")
+const backgroundList = document.getElementById("backgroundlist");
 const gameAssigner = document.getElementById("gameAssignerContainer");
 const dropzone = document.getElementById("dropzone");
 
 let maskData = {};
 
-
-// Check if the runGameFinder is selected correctly
+// Ensure runGameFinder is selected
 if (runGameFinder) {
     console.log('run-game-finder box found');
 } else {
     console.error('run-game-finder box not found');
-};
+}
 
+// Event listener for the runGameFinder button
 runGameFinder.addEventListener('click', async function() {
-    console.log("run-button clicked")
+    console.log("run-button clicked");
     try {
         const imagesDirPath = await window.electronAPI.runGameFinder("find-all-masks");
-        
-        
+
         gameAssigner.classList.remove('hidden');
-        console.log(imagesDirPath)
-        maskData = await window.electronAPI.readJson(imagesDirPath + "mask_metadata.json")
+        console.log(imagesDirPath);
+        
+        maskData = await window.electronAPI.readJson(imagesDirPath + "mask_metadata.json");
         const background = maskData.background;
         const games = maskData.games;
-        console.log(typeof background);
 
-        Object.values(background).forEach(mask => {
-            createTabDiv(mask, backgroundList); 
-            //console.log("Background:", mask)
-        });
-
-        Object.values(games).forEach(mask => {
-            createTabDiv(mask, gameList, true);  
-            //console.log("Games:", mask)
-        });
+        // Populate background and games
+        populateTabs(background, backgroundList);
+        populateTabs(games, gameList, true);
         
     } catch (error) {
-        console.error("Error running script and adding tabs", error)
-    };
+        console.error("Error running script and adding tabs", error);
+    }
 });
+
+// Function to populate tabs
+function populateTabs(data, element, active = false) {
+    Object.values(data).forEach(mask => {
+        createTabDiv(mask, element, active);
+    });
+}
+
+// Function to create a tab div and its associated folder
+function createTabDiv(mask, element, active = false) {
+    const tab = document.createElement('div');
+    tab.className = 'tab-container'
+    tab.draggable = true
+    tab.id = `tab_${mask.name}`
+    tab.addEventListener('dragstart', handleDragStart);
+
+    const tabHeaderPrimary = createTabHeader(mask, active);
+    const tabFolder = createTabFolder(mask);
+
+    tab.appendChild(tabHeaderPrimary);
+    tab.appendChild(tabFolder);
+    element.appendChild(tab);
+
+    // Attach events
+    tabHeaderPrimary.querySelector('.tab-button').addEventListener('click', handleDropdownButtonClick);
+
+    // Create the main mask image
+    createMaskImage(mask, dropzone, active);
+}
+
+// Function to create tab header
+function createTabHeader(mask, active, secondary=false) {
+    const tabHeader = document.createElement('div');
+    tabHeader.className = active ? 'tab active' : 'tab';
+    tabHeader.setAttribute('data-image', mask.filePath);
+    tabHeader.id = mask.name;
+
+    // Dropdown button
+    const dropdownButton = createButton('>', 'tab-button', 'tabButtonDropdown', secondary);
+    tabHeader.appendChild(dropdownButton);
+
+    // Text container
+    const textContainer = document.createElement('div');
+    textContainer.className = 'text-container';
+    textContainer.textContent = mask.name;
+    tabHeader.appendChild(textContainer);
+
+    textContainer.addEventListener('click', handleTabClick);
+
+    return tabHeader;
+}
+
+// Function to create tab folder
+function createTabFolder(mask) {
+    const tabFolder = document.createElement('div');
+    tabFolder.className = 'tab-folder hidden'; // Initially hidden
+
+    mask.internal.forEach((maskInternal) => {
+        const secondaryTab = document.createElement('div')
+        secondaryTab.className = 'tab-container'
+        secondaryTab.draggable = true
+        secondaryTab.id = `tab_${maskInternal.name}`
+        secondaryTab.addEventListener('dragstart', handleDragStart);
+
+        const tabHeaderSecondary = createTabHeader(maskInternal, false, true);
+        const insideTabFolder = document.createElement('div')
+        insideTabFolder.className = "tab-folder hidden"
+
+        secondaryTab.appendChild(tabHeaderSecondary);
+        secondaryTab.appendChild(insideTabFolder)
+
+        tabFolder.appendChild(secondaryTab)
+
+        // Create the internal mask image
+        createMaskImage(maskInternal, dropzone);
+    });
+
+    return tabFolder;
+}
+
+// Helper function to create buttons
+function createButton(text, className, id, disabled = false) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.className = className;
+    button.id = id;
+    if (disabled) button.disabled = true;
+    return button;
+}
+
+// Function to create mask images
+function createMaskImage(mask, parent, active = false) {
+    const maskImage = document.createElement('img');
+    maskImage.className = active ? 'maskImage' : 'maskImage hidden';
+    maskImage.src = mask.filePath;
+    maskImage.id = `img_${mask.name}`;
+    maskImage.style.position = 'absolute';
+    parent.appendChild(maskImage);
+}
 
 // Function to handle tab clicks
 function handleTabClick(event) {
-    // Add 'active' class to the clicked tab
     const tab = event.currentTarget.parentElement;
-    const currentTabID = tab.id ;
-    const currentMaskedImage = document.getElementById("img_" + currentTabID);
-     // If the tab already has the 'active' class, remove it (unactivate)
-     if (tab.classList.contains('active')) {
+    const currentTabID = tab.id;
+    const currentMaskedImage = document.getElementById(`img_${currentTabID}`);
+
+    // Toggle active class and mask image visibility
+    if (tab.classList.contains('active')) {
         tab.classList.remove('active');
         currentMaskedImage.classList.add('hidden');
-
-
     } else {
         tab.classList.add('active');
         currentMaskedImage.classList.remove('hidden');
     }
 }
 
-function createTabDiv(mask, element, active=false) {
-    const tab = document.createElement('div');
-    const tabHeaderPrimary = document.createElement('div');
-    const tabFolder = document.createElement('div');
-
-    tabHeaderPrimary.className = active ? 'tab active' : 'tab';
-    tabHeaderPrimary.setAttribute('data-image', mask.filePath);
-    tabHeaderPrimary.id = mask.name;
-     
-    //tabHeader
-    // Create dropdown button
-    const dropdownButton = document.createElement('button');
-    dropdownButton.className = "tab-button";
-    dropdownButton.textContent = '>';
-    dropdownButton.id = "tabButtonDropdown";
-    tabHeaderPrimary.appendChild(dropdownButton);
-    
-    
-    // Create the container for text
-    const textContainer = document.createElement('div');
-    textContainer.className = 'text-container';
-    textContainer.textContent = mask.name;
-    tabHeaderPrimary.appendChild(textContainer);
-    tab.appendChild(tabHeaderPrimary)
-
-    // tabFolder
-    tabFolder.className = 'tab-folder hidden';
-    mask.internal.forEach((maskInternal, index) => {
-        const tabHeaderSecondary = document.createElement('div')
-        tabHeaderSecondary.className = 'tab';
-        tabHeaderSecondary.setAttribute('data-image', maskInternal.filePath);
-        tabHeaderSecondary.id = mask.name + '@' + index;
-        
-        //tabHeader
-        // Create dropdown button
-        const dropdownButton = document.createElement('button');
-        dropdownButton.className = "tab-button";
-        dropdownButton.textContent = '>';
-        dropdownButton.id = "tabButtonDropdown";
-        dropdownButton.disabled = true;
-        tabHeaderSecondary.appendChild(dropdownButton);
-        
-        
-        // Create the container for text
-        const textContainer = document.createElement('div');
-        textContainer.className = 'text-container';
-        textContainer.textContent = mask.name + '@' + index;
-        tabHeaderSecondary.appendChild(textContainer);
-        tabFolder.appendChild(tabHeaderSecondary);
-
-        const maskImage = document.createElement('img');
-        maskImage.className = "maskImage hidden";
-        maskImage.src = maskInternal.filePath;
-        maskImage.id = "img_" + mask.name + '@' + index;
-        dropzone.appendChild(maskImage)
-        maskImage.style.position = 'absolute';
-
-        textContainer.addEventListener('click', handleTabClick);
-    });
-
-    tab.appendChild(tabFolder)
-    element.appendChild(tab);
-
-    textContainer.addEventListener('click', handleTabClick);
-    dropdownButton.addEventListener("click", handleDropdownButtonClick);
-
-    const maskImage = document.createElement('img');
-    maskImage.className = active ? 'maskImage': "maskImage hidden";
-    maskImage.src = mask.filePath;
-    maskImage.id = "img_" + mask.name
-    dropzone.appendChild(maskImage)
-    maskImage.style.position = 'absolute'; 
-}
-
+// Function to handle dropdown button clicks
 function handleDropdownButtonClick(event) {
-    // Get the parent 'tab' element
     const tab = event.currentTarget.parentElement.parentElement;
-    
-    // Find the 'tabFolder' inside the parent 'tab'
     const tabFolder = tab.querySelector('.tab-folder');
 
-    // Toggle the 'hidden' class on the 'tabFolder'
+    // Toggle visibility of the folder and change the dropdown button symbol
     if (tabFolder.classList.contains('hidden')) {
         tabFolder.classList.remove('hidden');
-        event.currentTarget.textContent = 'v';  // Change the dropdown button text to indicate it's expanded
+        event.currentTarget.textContent = 'v';
     } else {
         tabFolder.classList.add('hidden');
-        event.currentTarget.textContent = '>';  // Change the dropdown button text back to indicate it's collapsed
+        event.currentTarget.textContent = '>';
     }
 }
+
+gameList.addEventListener('dragover', handleDragOver);
+gameList.addEventListener('drop', handleDrop);
+
+backgroundList.addEventListener('dragover', handleDragOver);
+backgroundList.addEventListener('drop', handleDrop);
+
+function handleDragStart(event) {
+    event.dataTransfer.setData('text/plain', event.target.id);
+    console.log('Dragging tab with id:', event.target.id);
+}
+
+function handleDragOver(event) {
+    event.preventDefault();  
+}
+
+function handleDrop(event) {
+    event.preventDefault();
+    const id = event.dataTransfer.getData('text/plain'); // Retrieve the dragged tab's ID
+    const draggedElement = document.getElementById(id);
+
+    if (draggedElement) {
+        event.currentTarget.appendChild(draggedElement); // Append the tab to the drop target
+        console.log('Dropped tab with id:', id);
+    } else {
+        console.error('Dragged element not found');
+    }
+}  
+

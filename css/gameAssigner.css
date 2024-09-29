@@ -45,12 +45,25 @@
     align-content: center;
     border: 2px #1c1f23 solid;
     color: #fff; 
-    grid-template-columns: auto 1fr;
+    grid-template-columns: auto 1fr auto;
     grid-row-gap: 0;
     cursor: pointer;
     max-height: 40px;
     user-select: none;
     -webkit-user-select: none;
+}
+
+.tab-delete-button {
+    margin-left: auto; /* Push the button to the right */
+    padding: 5px 10px;
+    background-color: #ff4d4d;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.tab-delete-button:hover {
+    background-color: darkred;
 }
 
 .tab:hover {

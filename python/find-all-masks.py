@@ -149,10 +149,11 @@ def save_masks_to_directory(masks, clusters, base_dir):
 
         file_save_index +=1
 
-        for internal_mask in shape["internal_masks"]:
+        for j, internal_mask in enumerate(shape["internal_masks"]):
             save_path = os.path.join(mask_bin_path, f"{file_save_index}.png")
             transparent(internal_mask['segmentation'], save_path)
             mask_metadata[group_name][f"mask{i}"]["internal"].append({
+                "name": f"mask{i}@{j}",
                 "filePath": save_path,
                 "area": internal_mask["area"],
                 "bbox": internal_mask["bbox"],
