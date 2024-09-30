@@ -25,6 +25,11 @@ function initializeIpcHandlers(mainWindow) {
     }
   });
 
+  ipcMain.on('task-completed', (event, arg) => {
+    console.log(`Task completed: ${arg}`);
+    // Optionally store the completion status or message
+    mainWindow.webContents.send('game-finder-status', 'Game finder task has been completed!');
+});
 
 }
 

@@ -24,7 +24,6 @@ runGameFinder.addEventListener('click', async function() {
         const imagesDirPath = await window.electronAPI.runGameFinder("find-all-masks");
 
         gameAssigner.classList.remove('hidden');
-        console.log(imagesDirPath);
         
         maskData = await window.electronAPI.readJson(imagesDirPath + "mask_metadata.json");
         const background = maskData.background;
@@ -33,6 +32,9 @@ runGameFinder.addEventListener('click', async function() {
         // Populate background and games
         populateTabs(background, backgroundList);
         populateTabs(games, gameList, true);
+
+        //HERE send signal when this is done
+        window.electronAPI.sendTaskCompleted('Game finder task completed');
 
     } catch (error) {
         console.error("Error running script and adding tabs", error);
@@ -186,7 +188,6 @@ backgroundList.addEventListener('drop', handleDrop);
 
 function handleDragStart(event) {
     event.dataTransfer.setData('text/plain', event.target.id);
-    console.log('Dragging tab with id:', event.target.id);
 }
 
 function handleDragOver(event) {
@@ -213,7 +214,7 @@ function handleDrop(event) {
         if (isFolder) {
             const folderElement = dropTarget.closest('.tab-folder');
             folderElement.appendChild(draggedElement); // Add tab to folder
-            console.log('Dropped tab inside a folder');
+            ifPrimaryContainer(folderElement.className, draggedElement);
         } 
         // If the drop target is another tab in the primary container
         else if (isTab && dropTarget !== draggedElement) {
@@ -222,7 +223,6 @@ function handleDrop(event) {
 
             // Insert the dragged element before the drop target tab
             dropTargetContainer.insertBefore(draggedElement, dropTarget.closest('.tab-container'));
-            console.log('Dropped tab at a specific index in the container');
         } 
         // If the drop target is the primary container itself (not a tab)
         else if (isPrimaryContainer) {
@@ -249,10 +249,8 @@ function ifPrimaryContainer(className, draggedTab) {
         if (dropdownButton) {
             console.log('Dropdown button found in the dragged tab header:', dropdownButton);
             if (className === "primaryContainer") {
-                console.log("Class name IS ", className)
                 dropdownButton.disabled = false
             } else {
-                console.log("Class name ISNT primaryContainer its ", className)
                 dropdownButton.disabled = true
             }
         
