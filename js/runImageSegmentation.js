@@ -189,11 +189,60 @@ function handleDrop(event) {
     const id = event.dataTransfer.getData('text/plain'); // Retrieve the dragged tab's ID
     const draggedElement = document.getElementById(id);
 
+    
+
+    // Ensure the dragged element exists
     if (draggedElement) {
-        event.currentTarget.appendChild(draggedElement); // Append the tab to the drop target
-        console.log('Dropped tab with id:', id);
+        // Get the element under the mouse during the drop
+        const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
+        
+        // Check if the drop target is a tab in the same container
+        const isTab = dropTarget && dropTarget.closest('.tab-container');
+        
+        if (isTab && dropTarget !== draggedElement) {
+            const dropTargetContainer = dropTarget.closest('.tab-container').parentNode;
+            ifPrimaryContainer(dropTargetContainer.className, draggedElement)
+            
+            // Insert the dragged element before the drop target tab
+            dropTargetContainer.insertBefore(draggedElement, dropTarget.closest('.tab-container'));
+            console.log('Dropped tab at specific index');
+        } else {
+            // If no valid tab is found, append to the end of the container
+            event.currentTarget.appendChild(draggedElement);
+            ifPrimaryContainer(event.currentTarget.className, draggedElement)
+            console.log('Dropped tab at the end of the container');
+        }
     } else {
         console.error('Dragged element not found');
     }
 }  
+
+function ifPrimaryContainer(className, draggedTab) {
+    // Find the specific tab header within the dragged tab
+    const tabHeader = draggedTab.querySelector('.tab');
+
+    if (tabHeader) {
+        // Now find the dropdown button specifically inside the tab header
+        const dropdownButton = tabHeader.querySelector('.tab-button');
+
+        if (dropdownButton) {
+            console.log('Dropdown button found in the dragged tab header:', dropdownButton);
+            if (className === "primaryContainer") {
+                console.log("Class name IS ", className)
+                dropdownButton.disabled = false
+            } else {
+                console.log("Class name ISNT primaryContainer its ", className)
+                dropdownButton.disabled = true
+            }
+        
+        } else {
+            console.log('Dropdown button not found in the tab header');
+        }
+    } else {
+        console.log('Tab header not found in the dragged element');
+    }
+
+    
+    
+}
 
