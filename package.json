@@ -1,6 +1,6 @@
 {
   "name": "basic-gui",
-  "productName": "Test",
+  "productName": "Bundle Finder",
   "version": "1.0.0",
   "description": "App to create dataset",
   "main": "main/main.js",

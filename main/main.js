@@ -12,8 +12,7 @@ initializeIpcHandlersNonWindowEvent()
 
 function createMainWindow() {
     mainWindow = new BrowserWindow({
-        title: "Test",
-        width: 1000,
+        width: 1200,
         height: 800,
         minHeight: 650,
         minWidth: 900,

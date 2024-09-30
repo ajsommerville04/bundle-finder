@@ -15,11 +15,21 @@
 }
 
 .masksGamesTitle, .masksBackgroundTitle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 30px;
-    border-bottom: 2px solid #5d82b6;
+    font-size: 12pt;
+    font-family: century gothic;
+    color: #fff;
+}
+
+.titleGameAssigner {
+    font-size: 14pt;
+    font-family: century gothic;
+}
+
+.select-deselect-btn {
+    position: absolute; /* Allow button to be positioned outside the flex context */
+    left: 5px; /* Align button to the left */
+    background-color: #01316f;
+    color: #fff;
 }
 
 .primaryContainer {
@@ -30,9 +40,12 @@
 }
 
 .masksGamesTitleStyle, .masksBackgroundTitleStyle {
-    font-size: 12pt;
-    font-family: century gothic;
-    color: #fff;
+    display: flex;
+    align-items: center;
+    position: relative;
+    justify-content: center;
+    height: 30px;
+    border-bottom: 2px solid #5d82b6;
 }
 
 .hidden {
@@ -54,16 +67,14 @@
 }
 
 .tab-delete-button {
-    margin-left: auto; /* Push the button to the right */
-    padding: 5px 10px;
-    background-color: #ff4d4d;
+    background-color: #1c1f23;
     border: none;
     color: white;
     cursor: pointer;
 }
 
 .tab-delete-button:hover {
-    background-color: darkred;
+    background-color: #2d3239;
 }
 
 .tab:hover {
@@ -90,5 +101,9 @@
     background-color: #1c1f23;
     color: #1c1f23;
 
+}
+
+.tab-folder {
+    min-height: 30px;
 }
 
