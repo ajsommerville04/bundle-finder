@@ -71,5 +71,22 @@ function deactivateAllTabs(tabContainers) {
 }
 
 function mergeFunction() {
-    console.log("Merge function called")
+    console.log("merge function activated")
+    // Select all primary containers
+    const primaryContainers = document.querySelectorAll('.primaryContainer');
+    const confirmDenyContainer = document.getElementById("confirm-deny-container")
+
+    confirmDenyContainer.classList.remove("hidden")
+    
+    // Loop through each primary container to handle its tabs
+    primaryContainers.forEach(primaryContainer => {
+        // Get all tab containers within this primary container
+        const tabContainers = Array.from(primaryContainer.querySelectorAll('.tab-container'));
+        
+        // Deactivate all tabs within the primary container
+        deactivateAllTabs(tabContainers);
+
+    });
+    console.log('All tabs deactivated in primary container');
+
 }
