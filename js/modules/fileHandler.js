@@ -3,6 +3,8 @@ const os = require('os');
 const crypto = require('crypto')
 const path = require('path');
 
+let jsonFilePathMem = ''
+
 
 async function tempFileCreate(filename, buffer) {
     // Store the image temporarily
@@ -83,8 +85,14 @@ function createUniqueDirectory(imagePath, baseDir) {
 }
 
 function readJson(jsonFilePath) {
+    jsonFilePathMem = jsonFilePath
     const data = fs.readFileSync(jsonFilePath, "utf-8");
     return JSON.parse(data);
 }
 
-module.exports = { tempFileCreate, readJson };
+function updateJson(gameAssigner) {
+    console.log("Update Json", jsonFilePathMem);
+    console.log("Game assigner: ", gameAssigner)
+}
+
+module.exports = { tempFileCreate, readJson, updateJson};

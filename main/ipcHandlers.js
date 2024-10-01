@@ -1,5 +1,5 @@
 const { ipcMain, dialog } = require('electron');
-const { tempFileCreate, readJson } = require('../js/modules/fileHandler.js')
+const { tempFileCreate, readJson, updateJson } = require('../js/modules/fileHandler.js')
 const { runScript } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
@@ -29,8 +29,12 @@ function initializeIpcHandlers(mainWindow) {
     console.log(`Task completed: ${arg}`);
     // Optionally store the completion status or message
     mainWindow.webContents.send('game-finder-status', 'Game finder task has been completed!');
-});
-
+  });
+  ipcMain.on('update-json-signal', (event, arg) => {
+    console.log(`Task completed unique: ${arg}`);
+    // Optionally store the completion status or message
+    mainWindow.webContents.send('update-json-send-signal', arg);
+  });
 }
 
 function initializeIpcHandlersNonWindowEvent() {
@@ -67,6 +71,14 @@ function initializeIpcHandlersNonWindowEvent() {
       return data
     } catch (error) {
       console.error('Error loading data:', error)
+    }
+  })
+
+  ipcMain.handle("update-json", async (event, gameAssigner) => {
+    try {
+      updateJson(gameAssigner)
+    } catch (error) {
+      console.error('Error updating json')
     }
   })
 }

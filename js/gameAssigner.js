@@ -76,6 +76,11 @@ function mergeFunction() {
     console.log("merge function activated");
     isMergeActive = true;
 
+    const gameAssigner = document.getElementById("gameAssignerContainer")
+    console.log(gameAssigner)
+    
+    window.electronAPI.sendSignalUpdateJson('Sent signal')
+
     
     // Select all primary containers
     const primaryContainers = document.querySelectorAll('.primaryContainer'); 
@@ -118,7 +123,7 @@ function handleTabClick(event) {
             clickedTab.classList.add('selected'); // Highlight selected tab visually
             console.log(`Tab ${tabId} selected for merge`);
         } else {
-            selectedTabs.remove(tabId)
+            selectedTabs.pop(tabId)
             clickedTab.classList.remove('selected'); // Highlight selected tab visually
             console.log(`Tab ${tabId} removed for merge`);
         }
@@ -165,4 +170,6 @@ function cleanup() {
     // Hide buttons
     document.querySelector('.confirmDenyButtons').classList.add('hidden');
 }
+
+
 

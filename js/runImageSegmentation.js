@@ -72,6 +72,8 @@ function createTabHeader(mask, active, secondary=false) {
     const tabHeader = document.createElement('div');
     tabHeader.className = active ? 'tab active' : 'tab';
     tabHeader.setAttribute('data-image', mask.filePath);
+    tabHeader.setAttribute('data-area', mask.area);
+    tabHeader.setAttribute('data-bbox', mask.bbox)
     tabHeader.id = mask.name;
 
     // Dropdown button
