@@ -13,8 +13,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   updateJson: (gameAssigner) => ipcRenderer.invoke("update-json", gameAssigner),
 
   //rename these to be more accurate to description
-  sendTaskCompleted: (message) => {ipcRenderer.send('task-completed', message);},
-  onGameFinderStatus: (callback) => {ipcRenderer.on('tabs-added-signal', (event, message) => callback(message));},
+  sendTaskCompleted: (message, arg=null) => {ipcRenderer.send('task-completed', [message, arg]);},
+  readSignalMasksAdded: (callback) => {ipcRenderer.on('masks-added-signal', (event, message, imagePath) => callback(message, imagePath));},
+  readSignalTabsAdded: (callback) => {ipcRenderer.on('tabs-added-signal', (event, message) => callback(message));},
   readSignalUpdateJson: (callback) => {ipcRenderer.on('update-json-signal', (event, message) => callback(message));},
 });
 

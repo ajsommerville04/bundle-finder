@@ -25,9 +25,16 @@ function initializeIpcHandlers(mainWindow) {
     }
   });
 
-  ipcMain.on('task-completed', (event, arg) => {
-    console.log(`Task completed: ${arg}`);
-    mainWindow.webContents.send(arg, "Task completed signal sending!!");
+  ipcMain.on('task-completed', (event, [message, arg]) => {
+    console.log(`Task completed: ${message}`);
+    console.log("the arg recieved is", arg)
+    if (arg) {
+      console.log("activated correct one")
+      mainWindow.webContents.send(message, ["Task completed signal sending!!", arg]);
+    } else {
+      console.log("activated wrong one")
+      mainWindow.webContents.send(message, "Task completed signal sending!!");
+    }
   });
 }
 

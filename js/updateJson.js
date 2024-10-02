@@ -1,5 +1,5 @@
 window.electronAPI.readSignalUpdateJson((message) => {
-    console.log("message ting bob", message)
+    console.log("activation:", message)
     const data = extractTabData()
 
 

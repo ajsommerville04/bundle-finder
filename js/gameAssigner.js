@@ -1,10 +1,8 @@
 let isMergeActive = false;
 let selectedTabs = [];
 // In another renderer file
-window.electronAPI.onGameFinderStatus((message) => {
-    console.log(message); // This will log "Game finder task has been completed!"
-    // You can perform other actions based on this signal here
-
+window.electronAPI.readSignalTabsAdded((message) => {
+    //console.log(message); 
     const selectDeselectButtons = document.querySelectorAll('.select-deselect-btn');
 
     selectDeselectButtons.forEach(btn => {
