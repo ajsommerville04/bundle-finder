@@ -34,7 +34,7 @@ runGameFinder.addEventListener('click', async function() {
         populateTabs(games, gameList, true);
 
         //HERE send signal when this is done
-        window.electronAPI.sendTaskCompleted('Game finder task completed');
+        window.electronAPI.sendTaskCompleted('tabs-added-signal');
 
     } catch (error) {
         console.error("Error running script and adding tabs", error);

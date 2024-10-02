@@ -14,10 +14,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
   //rename these to be more accurate to description
   sendTaskCompleted: (message) => {ipcRenderer.send('task-completed', message);},
-  onGameFinderStatus: (callback) => {ipcRenderer.on('game-finder-status', (event, message) => callback(message));},
-
-  //For updating json file
-  sendSignalUpdateJson: (message) => {ipcRenderer.send('update-json-signal', message);},
-  readSignalUpdateJson: (callback) => {ipcRenderer.on('update-json-send-signal', (event, message) => callback(message));},
+  onGameFinderStatus: (callback) => {ipcRenderer.on('tabs-added-signal', (event, message) => callback(message));},
+  readSignalUpdateJson: (callback) => {ipcRenderer.on('update-json-signal', (event, message) => callback(message));},
 });
 

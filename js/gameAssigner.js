@@ -79,7 +79,7 @@ function mergeFunction() {
     const gameAssigner = document.getElementById("gameAssignerContainer")
     console.log(gameAssigner)
     
-    window.electronAPI.sendSignalUpdateJson('Sent signal')
+    window.electronAPI.sendTaskCompleted('update-json-signal')
 
     
     // Select all primary containers

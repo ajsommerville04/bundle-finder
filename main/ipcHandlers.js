@@ -27,13 +27,7 @@ function initializeIpcHandlers(mainWindow) {
 
   ipcMain.on('task-completed', (event, arg) => {
     console.log(`Task completed: ${arg}`);
-    // Optionally store the completion status or message
-    mainWindow.webContents.send('game-finder-status', 'Game finder task has been completed!');
-  });
-  ipcMain.on('update-json-signal', (event, arg) => {
-    console.log(`Task completed unique: ${arg}`);
-    // Optionally store the completion status or message
-    mainWindow.webContents.send('update-json-send-signal', arg);
+    mainWindow.webContents.send(arg, "Task completed signal sending!!");
   });
 }
 
