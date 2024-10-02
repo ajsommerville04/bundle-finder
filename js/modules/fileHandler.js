@@ -90,9 +90,16 @@ function readJson(jsonFilePath) {
     return JSON.parse(data);
 }
 
-function updateJson(gameAssigner) {
+function updateJson(data) {
     console.log("Update Json", jsonFilePathMem);
-    console.log("Game assigner: ", gameAssigner)
+    const jsonString = JSON.stringify(data, null, 4);
+    fs.writeFile(jsonFilePathMem, jsonString, (err) => {
+        if (err) {
+            console.error('Error writing to JSON file:', err);
+        } else {
+            console.log('JSON file has been saved successfully!');
+        }
+    });
 }
 
 module.exports = { tempFileCreate, readJson, updateJson};
