@@ -23,7 +23,6 @@ function preventDefaults (e) {
 // Add event listeners for drag and drop
 dropzoneBox.addEventListener('dragenter', () => {
     dropzoneBox.classList.add('hover');
-    console.log("file drag entered")
 }, false);
 
 dropzoneBox.addEventListener('dragleave', () => {
@@ -47,9 +46,10 @@ function handleDrop (e) {
             backEndReader.onload = async (event) => {
                 const fileBuffer = event.target.result; // This is an ArrayBuffer
                 try {
-                    const tempFilePath = await window.electronAPI.tempFileCreate(file.name, fileBuffer);
-                    displayImage(file, tempFilePath);
-                    console.log('Temporary file created at:', tempFilePath);
+                    //sends image to create tempfile
+                    const FilePath = await window.electronAPI.tempFileCreate(fileBuffer);
+                    displayImage(FilePath);
+                    console.log('Temporary file created at:', FilePath);
                 } catch (error) {
                     console.error('Error creating temporary file:', error);
                 }
@@ -61,23 +61,19 @@ function handleDrop (e) {
             
         } else {
             clearDisplay();
-            
             alert('Please drop an image file.');
         }
     }
 
 
-function displayImage(file, tempFilePath) {
-    const frontEndReader = new FileReader();
-    frontEndReader.onload = function (e) {
-        const img = document.createElement('img');
-        img.src = tempFilePath;
-        img.classList.add('dropped-image'); // Add a class for styling
-        //remove existing images
-        dropzoneBox.innerHTML = '';
-        dropzoneBox.appendChild(img);
-    }
-    frontEndReader.readAsDataURL(file);
+function displayImage(tempFilePath) {
+    const img = document.createElement('img');
+    img.src = tempFilePath;
+    img.classList.add('dropped-image'); // Add a class for styling
+    //remove existing images
+    dropzoneBox.innerHTML = '';
+    dropzoneBox.appendChild(img);
+    
     
 }
 

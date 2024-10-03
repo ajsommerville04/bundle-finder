@@ -7,8 +7,9 @@ const fs = require('fs')
 
 let mainWindow;
 let cleanupDone = false;
+const appBasePath = app.getAppPath();
 
-initializeIpcHandlersNonWindowEvent()
+initializeIpcHandlersNonWindowEvent(appBasePath)
 
 function createMainWindow() {
     mainWindow = new BrowserWindow({
@@ -28,6 +29,8 @@ function createMainWindow() {
 }
 
 app.whenReady().then(() => {
+  //ensures theres an assets folder when creating lanuching app for first time
+  ensureAssetsFolder()
   createMainWindow();
   initializeIpcHandlers(mainWindow);
 });
@@ -58,3 +61,17 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+function ensureAssetsFolder() {
+  // Create the assets folder path
+  const assetsFolderPath = path.join(appBasePath, 'assets');
+
+  // Check if the assets folder exists
+  if (!fs.existsSync(assetsFolderPath)) {
+      // If it doesn't exist, create the assets folder
+      fs.mkdirSync(assetsFolderPath);
+      console.log(`Created 'assets' folder at: ${assetsFolderPath}`);
+  } else {
+      console.log(`'assets' folder already exists at: ${assetsFolderPath}`);
+  }
+}

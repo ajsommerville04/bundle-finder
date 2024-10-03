@@ -7,7 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   maximizeWindow: () => ipcRenderer.send('maximize-window'),
   closeWindow: () => ipcRenderer.send('close-window'),
 
-  tempFileCreate: (fileName, fileBuffer) => ipcRenderer.invoke('temp-file-create', [fileName, fileBuffer]),
+  tempFileCreate: (fileBuffer) => ipcRenderer.invoke('temp-file-create', fileBuffer),
   runGameFinder: (scriptName) => ipcRenderer.invoke("run-game-finder", scriptName),
   readJson: (jsonFilePath) => ipcRenderer.invoke("readjson", jsonFilePath),
   updateJson: (gameAssigner) => ipcRenderer.invoke("update-json", gameAssigner),

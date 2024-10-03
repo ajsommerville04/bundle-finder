@@ -35,14 +35,16 @@ function initializeIpcHandlers(mainWindow) {
   });
 }
 
-function initializeIpcHandlersNonWindowEvent() {
-  let FilePath;
+function initializeIpcHandlersNonWindowEvent(appBasePath) {
+  let folderPath = '';
+  let imagePath = '';
+  let jsonPath = null;
 
-  ipcMain.handle('temp-file-create', async (event, [filename, fileBuffer]) => {
+  //rename this to be more accurately describe what it does
+  ipcMain.handle('temp-file-create', async (event, fileBuffer) => {
     try {
-      const tempFilePath = await tempFileCreate(filename, fileBuffer);
-      FilePath = tempFilePath
-      return tempFilePath;
+      [folderPath, imagePath, jsonPath] = await tempFileCreate(fileBuffer, appBasePath);
+      return imagePath;
     } catch (error) {
       console.error('Error in temp-file-create handler', error)
     }
@@ -50,6 +52,8 @@ function initializeIpcHandlersNonWindowEvent() {
   });
 
   ipcMain.handle('run-game-finder', async (event, scriptName) => {
+    //if json file not equal to null through an error
+
     console.log("Attempting to run game finder with tempFilePath:", FilePath);
     console.log("The script:", scriptName)
     if (!FilePath) {

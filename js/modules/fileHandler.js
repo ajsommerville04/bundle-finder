@@ -5,86 +5,51 @@ const path = require('path');
 const { fileURLToPath } = require('url');
 const fse = require('fs-extra');
 
-let jsonFilePathMem = ''
+async function tempFileCreate(buffer, appBasePath) {
+    let folderPath = '';
+    let imagePath = '';
+    let jsonFile = null;
 
-
-async function tempFileCreate(filename, buffer) {
-    // Store the image temporarily
-    console.log(filename);
-    const tempDir = os.tmpdir(); // Get the OS's temp directory
-    const appTempDir = path.join(tempDir, 'basic-gui');
-    
-    // Ensure the appTempDir exists
-    if (!fs.existsSync(appTempDir)) {
-        fs.mkdirSync(appTempDir, { recursive: true });
-    }
-
-    const tempTempFilePath = path.join(tempDir, filename);
-    
-    // Convert buffer to a Buffer instance
+    //convert buffer to uint8array 
     const fileBuffer = Buffer.from(new Uint8Array(buffer));
+    //generate unique hash key
+    const uniqueHash = crypto.createHash('sha256').update(fileBuffer).digest('hex');
+    //check if theres a folder in assets that has name of hash key - set filePath = to this
+    const assetsUniqueFolder = path.join(appBasePath, "assets", uniqueHash);
+    if (fs.existsSync(assetsUniqueFolder)) {
+        console.log("save found!!")
+        folderPath = assetsUniqueFolder;
+        //set imageFilePath to filepath + img.webp
+        imagePath = path.join(assetsUniqueFolder, "img.webp");
+        //check if theres a file in this folder with name mask_metadata.json
+        const jsonFileCheck = path.join(assetsUniqueFolder, "mask_metadata.json");
+        if (fs.existsSync(jsonFileCheck)) {
+            // if there is set maskJson to this path
+            // else maskJson is null
+            jsonFile = jsonFileCheck;
+        };
+    } else {
+        console.log("no save found")
+        const tempDir = os.tmpdir(); // Get the OS's temp directory
+        folderPath = path.join(tempDir, 'basic-gui', uniqueHash);
+        //make dir in temp dir for this image
+        fs.mkdirSync(folderPath, { recursive: true });
 
-    // Write the temporary file
-    try {
-        await fs.promises.writeFile(tempTempFilePath, fileBuffer);
-    } catch (error) {
-        console.error('Error writing temporary file:', error);
-        throw error; // Handle error as needed
+        imagePath = path.join(folderPath, "img.webp");
+
+        try {
+            await fs.promises.writeFile(imagePath, fileBuffer);
+        } catch (error) {
+            console.error('Error writing final image file:', error);
+            throw error;
+        }   
     }
-
-    // Create a unique directory and get its path
-    const tempFilePath = createUniqueDirectory(tempTempFilePath, appTempDir);
-    const tempFile = path.join(tempFilePath, "img.webp");
-
-    // Write the final image file to the unique directory
-    try {
-        await fs.promises.writeFile(tempFile, fileBuffer);
-    } catch (error) {
-        console.error('Error writing final image file:', error);
-        throw error; // Handle error as needed
-    }
-
-    // Delete the temporary file
-    fs.unlink(tempTempFilePath, (err) => {
-        if (err) {
-            console.error(`Error deleting temp file: ${err.message}`);
-        } else {
-            console.log('Temporary file deleted');
-        }
-    });
-
-    return tempFile; // Return the path of the final image file
+    return [folderPath, imagePath, jsonFile];
 }
 
-function generateImageHash(imagePath) {
-    try {
-        const imageBuffer = fs.readFileSync(imagePath);  // Read the image file into a buffer
-        // Create a hash of the image using SHA-256
-        const hash = crypto.createHash('sha256').update(imageBuffer).digest('hex');
-        return hash;
-    } catch (error) {
-        console.error('Error generating hash:', error);
-    }
-}
 
-// Function to create a unique directory based on the image hash
-function createUniqueDirectory(imagePath, baseDir) {
-    try {
-        // Generate a hash from the image
-        const hash = generateImageHash(imagePath);
 
-        // Create the directory path
-        const uniqueDir = path.join(baseDir, hash);
 
-        // Ensure the directory exists
-        fs.mkdirSync(uniqueDir, { recursive: true });
-
-        console.log(`Directory created: ${uniqueDir}`);
-        return uniqueDir;
-    } catch (error) {
-        console.error('Error creating directory:', error);
-    }
-}
 
 function readJson(jsonFilePath) {
     jsonFilePathMem = jsonFilePath
@@ -107,7 +72,8 @@ function updateJson(data) {
 async function savePerm(image_path) {
     const full_temp_dir_name = fileURLToPath(path.dirname(image_path));
     const uniqueDirName = path.basename(full_temp_dir_name);
-    const assetsFolderPath = ensureAssetsFolder();
+    //assets Folder path does nothing
+    //const assetsFolderPath = ensureAssetsFolder();
     console.log(assetsFolderPath);
     console.log("+ ", uniqueDirName);
 
@@ -132,26 +98,6 @@ async function savePerm(image_path) {
     
     
 
-}
-
-function ensureAssetsFolder() {
-    // Get the base path of your app (in Electron, use app.getAppPath() for the app path)
-    const appBasePath = path.resolve(__dirname, '../../'); // or app.getAppPath() if in Electron
-
-    // Create the assets folder path
-    const assetsFolderPath = path.join(appBasePath, 'assets');
-
-    // Check if the assets folder exists
-    if (!fs.existsSync(assetsFolderPath)) {
-        // If it doesn't exist, create the assets folder
-        fs.mkdirSync(assetsFolderPath);
-        console.log(`Created 'assets' folder at: ${assetsFolderPath}`);
-    } else {
-        console.log(`'assets' folder already exists at: ${assetsFolderPath}`);
-    }
-
-    // Return the assets folder path for further use
-    return assetsFolderPath;
 }
 
 // Function to copy a directory recursively

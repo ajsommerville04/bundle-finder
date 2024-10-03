@@ -7,7 +7,6 @@ document.addEventListener('keydown', function (event) {
         // Check if an image is loaded
         if (image && image.src) {
             console.log("SRC:", image.src)
-            console.log("All working -> this is where a signal for saving is sent")
             saveImage(image.src)
         } else {
             console.log("No image loaded to save.");
