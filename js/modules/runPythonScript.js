@@ -6,7 +6,6 @@ const fs = require("fs")
 let venv = `C:/Users/alex/Programming/python_venvs/ebay/Scripts/python.exe`;
 
 function runScript(scriptName, imagePath) {
-    console.log(scriptName)
     return new Promise((resolve, reject) => {
         const pythonProcess = spawn( venv, [`C:/Users/alex/Programming/Projects/basic-gui/python/${scriptName}.py`, imagePath]);
         pythonProcess.stdout.on('data', (data) => {
@@ -24,9 +23,8 @@ function runScript(scriptName, imagePath) {
         // Detect when the Python process ends
         pythonProcess.on('close', (code) => {
             console.log(`Python process exited with code ${code}`);
-            const fileSeparator = path.sep;
-            const basePath = path.dirname(imagePath) + fileSeparator;
-            resolve(basePath);
+            jsonPath = path.join(path.dirname(imagePath), "mask_metadata.json")
+            resolve(jsonPath);
         });
     });
 }

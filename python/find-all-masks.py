@@ -133,6 +133,7 @@ def save_masks_to_directory(masks, clusters, base_dir):
         #background
         
         save_path = os.path.join(mask_bin_path, f"{file_save_index}.png")
+
         transparent(shape["segmentation"], save_path)
         
         if clusters[i] ==1:
@@ -141,7 +142,7 @@ def save_masks_to_directory(masks, clusters, base_dir):
             group_name = "games"
         mask_metadata[group_name][f"mask{i}"] = {
             "name" : f"mask{i}",
-            "filePath": save_path,
+            "filePath": os.path.join('mask-bin', f'{file_save_index}.png'),
             "area": shape["area"],
             "bbox": shape["bbox"],
             "internal": []
@@ -154,7 +155,7 @@ def save_masks_to_directory(masks, clusters, base_dir):
             transparent(internal_mask['segmentation'], save_path)
             mask_metadata[group_name][f"mask{i}"]["internal"].append({
                 "name": f"mask{i}@{j}",
-                "filePath": save_path,
+                "filePath": os.path.join('mask-bin', f'{file_save_index}.png'),
                 "area": internal_mask["area"],
                 "bbox": internal_mask["bbox"],
             })

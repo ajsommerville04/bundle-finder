@@ -15,12 +15,14 @@ if (runGameFinder) {
 runGameFinder.addEventListener('click', async function() {
     console.log("run-button clicked");
     try {
-        const imagesDirPath = await window.electronAPI.runGameFinder("find-all-masks");
+        const gameAssignerActive = await window.electronAPI.runGameFinder("find-all-masks");
+        if (!gameAssignerActive) {
+            document.getElementById("gameAssignerContainer").classList.remove('hidden');
+            //send signal here
+            window.electronAPI.sendTaskCompleted("masks-added-signal");
 
-        document.getElementById("gameAssignerContainer").classList.remove('hidden');
+        }
         
-        //send signal here
-        window.electronAPI.sendTaskCompleted("masks-added-signal", imagesDirPath);
     } catch (error) {
         console.error("Error running 'run' script", error);
     }

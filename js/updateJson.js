@@ -1,13 +1,19 @@
-window.electronAPI.readSignalUpdateJson((message) => {
+let folderDir = null;
+
+window.electronAPI.readSignalUpdateJson(async (message) => {
     console.log("activation:", message)
-    const data = extractTabData()
-
-
-    
-    window.electronAPI.updateJson(data)
+    try {
+        const data = await extractTabData();  // Await the data extraction
+        await window.electronAPI.updateJson(data);  // Await the updateJson call
+    } catch (error) {
+        console.error('Error during JSON update:', error); // Log any errors
+    }
     });
 
-function extractTabData() {
+
+async function extractTabData() {
+    folderDir = await window.electronAPI.getFolderPath()
+    console.log("Find this message",folderDir)
     const data = {
         background: {},
         games: {}
@@ -47,7 +53,7 @@ function extractTabData() {
 
 function getContainerInfo(tab) {
     const tabName = tab.id 
-    const tabFilePath = tab.getAttribute('data-image');                  
+    const tabFilePath = stripBasePath(tab.getAttribute('data-image'));                  
     const tabDataArea = parseInt(tab.getAttribute('data-area'));                       
     const tabDataBbox = tab.getAttribute('data-bbox').split(',').map(Number);                      
 
@@ -60,4 +66,11 @@ function getContainerInfo(tab) {
 
     return info
 }
+
+function stripBasePath(fullPath) {
+    // Remove the basePath from the fullPath
+    const strippedPath = fullPath.replace(folderDir, '');
+    return strippedPath;
+}
+
 

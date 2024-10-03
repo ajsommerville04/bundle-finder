@@ -1,5 +1,5 @@
 const { ipcMain, dialog } = require('electron');
-const { tempFileCreate, readJson, updateJson, savePerm} = require('../js/modules/fileHandler.js')
+const { tempFileCreate, readJson, updateJson, saveTempToPermanant} = require('../js/modules/fileHandler.js')
 const { runScript } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
@@ -36,15 +36,21 @@ function initializeIpcHandlers(mainWindow) {
 }
 
 function initializeIpcHandlersNonWindowEvent(appBasePath) {
-  let folderPath = '';
-  let imagePath = '';
+  let folderPath = null;
+  let imagePath = null;
   let jsonPath = null;
+  let fileSeperator = null;
 
   //rename this to be more accurately describe what it does
   ipcMain.handle('temp-file-create', async (event, fileBuffer) => {
     try {
-      [folderPath, imagePath, jsonPath] = await tempFileCreate(fileBuffer, appBasePath);
-      return imagePath;
+      [folderPath, imagePath, jsonPath, fileSeperator] = await tempFileCreate(fileBuffer, appBasePath);
+      if (jsonPath !== null) {
+        jsonSignal = true
+      } else {
+        jsonSignal = false
+      }
+      return [imagePath, jsonSignal];
     } catch (error) {
       console.error('Error in temp-file-create handler', error)
     }
@@ -52,50 +58,68 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
   });
 
   ipcMain.handle('run-game-finder', async (event, scriptName) => {
+    let gameAssignerActive = null;
     //if json file not equal to null through an error
-
-    console.log("Attempting to run game finder with tempFilePath:", FilePath);
-    console.log("The script:", scriptName)
-    if (!FilePath) {
-      dialog.showErrorBox("Error", "No Image Selected");
+    if (imagePath === null) {
+      dialog.showErrorBox("Error", "No Image Selected.\nEither select a previous image\nor drag and drop a new one")
       return;
+    } else {
+      console.log("Found image path:", imagePath);
+      if (jsonPath === null) {
+        console.log("The script:", scriptName);
+        try {
+          jsonPath = await runScript(scriptName, imagePath);
+          gameAssignerActive = false;
+        } catch (error) {
+          console.error("Error running python script", error.message);
+        }
+      } else {
+        gameAssignerActive = true;
+        console.log("Masks of already been obtained for this image");
+      }
     }
-    try {
-      const filePath = await runScript(scriptName, FilePath);
-      return filePath
-    } catch (error) {
-      console.error("Error running python script", error.message);
-    }
+    return gameAssignerActive;
   });
 
-  ipcMain.handle("readjson", async (event, jsonFilePath) => {
+  ipcMain.handle("readjson", async (event) => {
     try {
-      const data = readJson(jsonFilePath)
+      console.log("attempting to read file", jsonPath)
+      const data = readJson(jsonPath)
       return data
     } catch (error) {
       console.error('Error loading data:', error)
     }
-  })
+  });
 
   ipcMain.handle("update-json", async (event, gameAssigner) => {
     try {
-      updateJson(gameAssigner)
+      updateJson(gameAssigner, jsonPath)
     } catch (error) {
       console.error('Error updating json')
     }
-  })
-  ipcMain.handle("save-permenant", async (event, filePath) => {
+  });
+
+  ipcMain.handle("save-permenant", async (event) => {
     try {
-      // Check if savePerm is async and await it
-      filePath = await savePerm(filePath);
-      console.log(filePath)
+      [folderPath, imagePath, jsonPath] = await saveTempToPermanant(folderPath, appBasePath);
+      console.log(folderPath)
 
       // Return a success message (good practice for ipcMain.handle)
       return { success: true, message: "File saved permanently." };
     } catch (error) {
-      console.error('Error saving file permenantly', error)
+      console.error('Error saving file permenantly', error);
     }
-  })
+  });
+
+  ipcMain.handle("get-folder-dir", (event) => {
+    console.log(folderPath)
+    return folderPath + fileSeperator;
+  });
+
+  ipcMain.handle("get-json-file", (event) => {
+    console.log(jsonPath)
+    return jsonPath;
+  });
 
   
 }

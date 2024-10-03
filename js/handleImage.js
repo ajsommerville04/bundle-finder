@@ -47,9 +47,14 @@ function handleDrop (e) {
                 const fileBuffer = event.target.result; // This is an ArrayBuffer
                 try {
                     //sends image to create tempfile
-                    const FilePath = await window.electronAPI.tempFileCreate(fileBuffer);
+                    const [FilePath, foundJson] = await window.electronAPI.tempFileCreate(fileBuffer);
                     displayImage(FilePath);
-                    console.log('Temporary file created at:', FilePath);
+                    console.log('Image file path found at: ', FilePath);
+                    if (foundJson) {
+                        await window.electronAPI.sendTaskCompleted('masks-added-signal');
+                        document.getElementById("gameAssignerContainer").classList.remove('hidden');
+                        console.log("masks added")
+                    };
                 } catch (error) {
                     console.error('Error creating temporary file:', error);
                 }
@@ -69,7 +74,7 @@ function handleDrop (e) {
 function displayImage(tempFilePath) {
     const img = document.createElement('img');
     img.src = tempFilePath;
-    img.classList.add('dropped-image'); // Add a class for styling
+    img.classList.add('dropped-image');
     //remove existing images
     dropzoneBox.innerHTML = '';
     dropzoneBox.appendChild(img);

@@ -1,13 +1,18 @@
-window.electronAPI.readSignalMasksAdded(([message, imagesDirPath]) => {
+let folderDir = null;
 
-    console.log("got to here")
-    console.log(message)
-    console.log("got the arg", imagesDirPath)
-    loadJson(imagesDirPath)
+window.electronAPI.readSignalMasksAdded(([message]) => {
+    console.log("loading json");
+    console.log(message);
+    loadJson();
 });
 
-async function loadJson(imagesDirPath) {
-    const maskData = await window.electronAPI.readJson(imagesDirPath + "mask_metadata.json");
+async function loadJson() {
+    console.log("attempting to read json file")
+    const maskData = await window.electronAPI.readJson();
+    console.log("received maskdata: ", maskData)
+
+    folderDir = await window.electronAPI.getFolderPath();
+    console.log("received dir", folderDir);
     const background = maskData.background;
     const games = maskData.games;
 
@@ -58,7 +63,7 @@ function createTabDiv(mask, element, active = false) {
 function createTabHeader(mask, active, secondary=false) {
     const tabHeader = document.createElement('div');
     tabHeader.className = active ? 'tab active' : 'tab';
-    tabHeader.setAttribute('data-image', mask.filePath);
+    tabHeader.setAttribute('data-image', folderDir + mask.filePath);
     tabHeader.setAttribute('data-area', mask.area);
     tabHeader.setAttribute('data-bbox', mask.bbox)
     tabHeader.id = mask.name;
@@ -133,7 +138,7 @@ function createMaskImage(mask, active = false) {
     const maskImage = document.createElement('img');
     const dropzone = document.getElementById("dropzone")
     maskImage.className = active ? 'maskImage' : 'maskImage hidden';
-    maskImage.src = mask.filePath;
+    maskImage.src = folderDir + mask.filePath;
     maskImage.id = `img_${mask.name}`;
     maskImage.style.position = 'absolute';
     dropzone.appendChild(maskImage);

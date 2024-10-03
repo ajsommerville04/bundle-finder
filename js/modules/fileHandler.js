@@ -2,7 +2,6 @@ const fs = require('fs');
 const os = require('os');
 const crypto = require('crypto')
 const path = require('path');
-const { fileURLToPath } = require('url');
 const fse = require('fs-extra');
 
 async function tempFileCreate(buffer, appBasePath) {
@@ -44,7 +43,7 @@ async function tempFileCreate(buffer, appBasePath) {
             throw error;
         }   
     }
-    return [folderPath, imagePath, jsonFile];
+    return [folderPath, imagePath, jsonFile, path.sep];
 }
 
 
@@ -52,15 +51,14 @@ async function tempFileCreate(buffer, appBasePath) {
 
 
 function readJson(jsonFilePath) {
-    jsonFilePathMem = jsonFilePath
     const data = fs.readFileSync(jsonFilePath, "utf-8");
     return JSON.parse(data);
 }
 
-function updateJson(data) {
-    console.log("Update Json", jsonFilePathMem);
+function updateJson(data, jsonPath) {
+    console.log("Update Json", jsonPath);
     const jsonString = JSON.stringify(data, null, 4);
-    fs.writeFile(jsonFilePathMem, jsonString, (err) => {
+    fs.writeFile(jsonPath, jsonString, (err) => {
         if (err) {
             console.error('Error writing to JSON file:', err);
         } else {
@@ -69,35 +67,23 @@ function updateJson(data) {
     });
 }
 
-async function savePerm(image_path) {
-    const full_temp_dir_name = fileURLToPath(path.dirname(image_path));
-    const uniqueDirName = path.basename(full_temp_dir_name);
-    //assets Folder path does nothing
-    //const assetsFolderPath = ensureAssetsFolder();
-    console.log(assetsFolderPath);
-    console.log("+ ", uniqueDirName);
-
-    // Create the unique directory inside the assets folder
-    const targetDir = path.join(assetsFolderPath, uniqueDirName);
-    const new_image_path = path.join(targetDir, "img.webp");
-
+async function saveTempToPermanant(tempFolderPath, appFolderPath) {
+    const uniqueDirName = path.basename(tempFolderPath);
+    const newDir = path.join(appFolderPath, "assets", uniqueDirName)
+    
     // Check if the target directory already exists
-    if (!fs.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir);
-        console.log(`Created target directory at: ${targetDir}`);
+    if (!fs.existsSync(newDir)) {
+        fs.mkdirSync(newDir);
+        console.log(`Created target directory at: ${newDir}`);
         // Now copy all contents from the temporary directory to the target directory
-        await copyDirectory(full_temp_dir_name, targetDir);
-        deleteDirectoryRecursive(full_temp_dir_name);
+        await copyDirectory(tempFolderPath, newDir);
+        deleteDirectoryRecursive(tempFolderPath);
         
         
     } else {
-        console.log(`Directory already exists: ${targetDir}`);
+        console.log(`Directory already exists: ${newDir}. Json File saved`);
     } 
-    return new_image_path;
-
-    
-    
-
+    return [newDir, path.join(newDir, "img.webp"), path.join(newDir, "mask_metadata.json")];
 }
 
 // Function to copy a directory recursively
@@ -129,4 +115,4 @@ function deleteDirectoryRecursive(dir) {
     }
 }
 
-module.exports = { tempFileCreate, readJson, updateJson, savePerm};
+module.exports = { tempFileCreate, readJson, updateJson, saveTempToPermanant};
