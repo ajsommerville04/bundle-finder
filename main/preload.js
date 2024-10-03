@@ -11,8 +11,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   runGameFinder: (scriptName) => ipcRenderer.invoke("run-game-finder", scriptName),
   readJson: (jsonFilePath) => ipcRenderer.invoke("readjson", jsonFilePath),
   updateJson: (gameAssigner) => ipcRenderer.invoke("update-json", gameAssigner),
+  savePerm: (filePath) => ipcRenderer.invoke("save-permenant", filePath),
 
-  //rename these to be more accurate to description
   sendTaskCompleted: (message, arg=null) => {ipcRenderer.send('task-completed', [message, arg]);},
   readSignalMasksAdded: (callback) => {ipcRenderer.on('masks-added-signal', (event, message, imagePath) => callback(message, imagePath));},
   readSignalTabsAdded: (callback) => {ipcRenderer.on('tabs-added-signal', (event, message) => callback(message));},

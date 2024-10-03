@@ -1,5 +1,5 @@
 const { ipcMain, dialog } = require('electron');
-const { tempFileCreate, readJson, updateJson } = require('../js/modules/fileHandler.js')
+const { tempFileCreate, readJson, updateJson, savePerm} = require('../js/modules/fileHandler.js')
 const { runScript } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
@@ -27,23 +27,21 @@ function initializeIpcHandlers(mainWindow) {
 
   ipcMain.on('task-completed', (event, [message, arg]) => {
     console.log(`Task completed: ${message}`);
-    console.log("the arg recieved is", arg)
     if (arg) {
-      console.log("activated correct one")
       mainWindow.webContents.send(message, ["Task completed signal sending!!", arg]);
     } else {
-      console.log("activated wrong one")
       mainWindow.webContents.send(message, "Task completed signal sending!!");
     }
   });
 }
 
 function initializeIpcHandlersNonWindowEvent() {
-  let tempFilePath;
+  let FilePath;
 
   ipcMain.handle('temp-file-create', async (event, [filename, fileBuffer]) => {
     try {
-      tempFilePath = await tempFileCreate(filename, fileBuffer);
+      const tempFilePath = await tempFileCreate(filename, fileBuffer);
+      FilePath = tempFilePath
       return tempFilePath;
     } catch (error) {
       console.error('Error in temp-file-create handler', error)
@@ -52,14 +50,14 @@ function initializeIpcHandlersNonWindowEvent() {
   });
 
   ipcMain.handle('run-game-finder', async (event, scriptName) => {
-    console.log("Attempting to run game finder with tempFilePath:", tempFilePath);
+    console.log("Attempting to run game finder with tempFilePath:", FilePath);
     console.log("The script:", scriptName)
-    if (!tempFilePath) {
+    if (!FilePath) {
       dialog.showErrorBox("Error", "No Image Selected");
       return;
     }
     try {
-      const filePath = await runScript(scriptName, tempFilePath);
+      const filePath = await runScript(scriptName, FilePath);
       return filePath
     } catch (error) {
       console.error("Error running python script", error.message);
@@ -82,6 +80,20 @@ function initializeIpcHandlersNonWindowEvent() {
       console.error('Error updating json')
     }
   })
+  ipcMain.handle("save-permenant", async (event, filePath) => {
+    try {
+      // Check if savePerm is async and await it
+      filePath = await savePerm(filePath);
+      console.log(filePath)
+
+      // Return a success message (good practice for ipcMain.handle)
+      return { success: true, message: "File saved permanently." };
+    } catch (error) {
+      console.error('Error saving file permenantly', error)
+    }
+  })
+
+  
 }
 
 module.exports = { initializeIpcHandlers, initializeIpcHandlersNonWindowEvent };

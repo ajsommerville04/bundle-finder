@@ -2,6 +2,8 @@ const fs = require('fs');
 const os = require('os');
 const crypto = require('crypto')
 const path = require('path');
+const { fileURLToPath } = require('url');
+const fse = require('fs-extra');
 
 let jsonFilePathMem = ''
 
@@ -102,4 +104,83 @@ function updateJson(data) {
     });
 }
 
-module.exports = { tempFileCreate, readJson, updateJson};
+async function savePerm(image_path) {
+    const full_temp_dir_name = fileURLToPath(path.dirname(image_path));
+    const uniqueDirName = path.basename(full_temp_dir_name);
+    const assetsFolderPath = ensureAssetsFolder();
+    console.log(assetsFolderPath);
+    console.log("+ ", uniqueDirName);
+
+    // Create the unique directory inside the assets folder
+    const targetDir = path.join(assetsFolderPath, uniqueDirName);
+    const new_image_path = path.join(targetDir, "img.webp");
+
+    // Check if the target directory already exists
+    if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir);
+        console.log(`Created target directory at: ${targetDir}`);
+        // Now copy all contents from the temporary directory to the target directory
+        await copyDirectory(full_temp_dir_name, targetDir);
+        deleteDirectoryRecursive(full_temp_dir_name);
+        
+        
+    } else {
+        console.log(`Directory already exists: ${targetDir}`);
+    } 
+    return new_image_path;
+
+    
+    
+
+}
+
+function ensureAssetsFolder() {
+    // Get the base path of your app (in Electron, use app.getAppPath() for the app path)
+    const appBasePath = path.resolve(__dirname, '../../'); // or app.getAppPath() if in Electron
+
+    // Create the assets folder path
+    const assetsFolderPath = path.join(appBasePath, 'assets');
+
+    // Check if the assets folder exists
+    if (!fs.existsSync(assetsFolderPath)) {
+        // If it doesn't exist, create the assets folder
+        fs.mkdirSync(assetsFolderPath);
+        console.log(`Created 'assets' folder at: ${assetsFolderPath}`);
+    } else {
+        console.log(`'assets' folder already exists at: ${assetsFolderPath}`);
+    }
+
+    // Return the assets folder path for further use
+    return assetsFolderPath;
+}
+
+// Function to copy a directory recursively
+async function copyDirectory(sourceDir, targetDir) {
+    try {
+        await fse.copy(sourceDir, targetDir);
+        console.log(`Copied from ${sourceDir} to ${targetDir}`);
+    } catch (err) {
+        console.error('Error while copying directory:', err);
+    }
+}
+
+function deleteDirectoryRecursive(dir) {
+    if (fs.existsSync(dir)) {
+        fs.readdirSync(dir).forEach((file) => {
+            const currentPath = path.join(dir, file);
+            if (fs.lstatSync(currentPath).isDirectory()) {
+                // Recursively delete subdirectory
+                deleteDirectoryRecursive(currentPath);
+            } else {
+                // Delete file
+                fs.unlinkSync(currentPath);
+            }
+        });
+        fs.rmdirSync(dir); // Remove the empty directory
+        console.log(`Deleted directory: ${dir}`);
+    } else {
+        console.log(`Directory not found: ${dir}`);
+    }
+}
+
+module.exports = { tempFileCreate, readJson, updateJson, savePerm};

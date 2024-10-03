@@ -42,12 +42,13 @@ function handleDrop (e) {
         const file = files[0];
         if (file.type.startsWith('image/')) {
             //displays image on screen
-            displayImage(file);
+            
             const backEndReader = new FileReader();
             backEndReader.onload = async (event) => {
                 const fileBuffer = event.target.result; // This is an ArrayBuffer
                 try {
                     const tempFilePath = await window.electronAPI.tempFileCreate(file.name, fileBuffer);
+                    displayImage(file, tempFilePath);
                     console.log('Temporary file created at:', tempFilePath);
                 } catch (error) {
                     console.error('Error creating temporary file:', error);
@@ -60,16 +61,17 @@ function handleDrop (e) {
             
         } else {
             clearDisplay();
+            
             alert('Please drop an image file.');
         }
     }
 
 
-function displayImage(file) {
+function displayImage(file, tempFilePath) {
     const frontEndReader = new FileReader();
     frontEndReader.onload = function (e) {
         const img = document.createElement('img');
-        img.src = e.target.result;
+        img.src = tempFilePath;
         img.classList.add('dropped-image'); // Add a class for styling
         //remove existing images
         dropzoneBox.innerHTML = '';
