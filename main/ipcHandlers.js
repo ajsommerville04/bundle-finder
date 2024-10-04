@@ -1,5 +1,5 @@
 const { ipcMain, dialog } = require('electron');
-const { tempFileCreate, readJson, updateJson, saveTempToPermanant} = require('../js/modules/fileHandler.js')
+const { tempFileCreate, readJson, updateJson, saveTempToPermanant, getAssetsFolder} = require('../js/modules/fileHandler.js')
 const { runScript } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
@@ -119,6 +119,12 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
   ipcMain.handle("get-json-file", (event) => {
     console.log(jsonPath)
     return jsonPath;
+  });
+
+  ipcMain.handle("get-assets-folder", async (event) => {
+    console.log("Assets function is firing correctly")
+    return await getAssetsFolder(appBasePath)
+
   });
 
   

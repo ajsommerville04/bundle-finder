@@ -87,8 +87,20 @@
 
 .exploredFilesContainer {
     display: flex;
-    overflow-x: hidden;
-    overflow-y: scroll;
+    overflow-y: auto;
     flex-direction: column;
-    max-height: 350px;
+    height: 100%; /*This is temporary*/
+    padding: 5px;
+}
+
+.fileTab {
+    border: 2px #2d3239 solid;
+    color: #fff;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    
+}
+
+.fileTab:hover {
+    border: 2px orange dashed;
 }

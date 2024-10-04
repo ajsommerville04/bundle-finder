@@ -115,4 +115,24 @@ function deleteDirectoryRecursive(dir) {
     }
 }
 
-module.exports = { tempFileCreate, readJson, updateJson, saveTempToPermanant};
+function getAssetsFolder(appFolderPath) {
+    const assetsFolderPath = path.join(appFolderPath, "assets")
+    const imageFolders = fs.readdirSync(assetsFolderPath).filter(item => {
+        const itemPath = path.join(assetsFolderPath, item);
+        return fs.statSync(itemPath).isDirectory();
+    }).map(item => path.join(assetsFolderPath, item));
+    //make array of a dictionary
+    const returnFolder = [];
+    imageFolders.forEach(folderPath => {
+        const info = {};
+        info['uniqueHash'] = path.basename(folderPath)
+        info['jsonPath'] = path.join(folderPath, "mask_metadata.json")
+        info['imagePath'] = path.join(folderPath, 'img.webp')
+        info['dirPath'] = folderPath
+        returnFolder.push(info)
+    })
+    console.log("this should be an array of objects", returnFolder)
+    return returnFolder
+}
+
+module.exports = { tempFileCreate, readJson, updateJson, saveTempToPermanant, getAssetsFolder};
