@@ -2,6 +2,7 @@
 console.log('handleImage file loaded');
 
 const dropzoneBox = document.getElementById("dropzone");
+const originalGameAssigner = document.getElementById("gameAssignerContainer").innerHTML
 
 // Check if the dropzoneBox is selected correctly
 if (dropzoneBox) {
@@ -32,6 +33,11 @@ dropzoneBox.addEventListener('dragleave', () => {
 dropzoneBox.addEventListener('drop', handleDrop, false);
 
 function handleDrop (e) {
+    clearDisplay();
+    document.getElementById('gameAssignerContainer').innerHTML = originalGameAssigner;
+    document.getElementById("gameAssignerContainer").classList.add("hidden")
+    
+    
     dropzoneBox.classList.remove('hover');
 
     const files = e.dataTransfer.files;
@@ -65,7 +71,6 @@ function handleDrop (e) {
             }
             
         } else {
-            clearDisplay();
             alert('Please drop an image file.');
         }
     }
