@@ -15,6 +15,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getFolderPath: () => ipcRenderer.invoke("get-folder-dir"),
   getJsonFile: () => ipcRenderer.invoke("get-json-file"),
   getAssetsFolder: () => ipcRenderer.invoke("get-assets-folder"),
+  setBackendAttributes: (folderDir, imagePath, jsonPath) => ipcRenderer.invoke("set-backend-attributes", [folderDir, imagePath, jsonPath]),
 
   sendTaskCompleted: (message, arg=null) => {ipcRenderer.send('task-completed', [message, arg]);},
   readSignalMasksAdded: (callback) => {ipcRenderer.on('masks-added-signal', (event, message) => callback(message));},

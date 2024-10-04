@@ -98,9 +98,15 @@
     color: #fff;
     overflow-x: hidden;
     text-overflow: ellipsis;
+    user-select: none;
+    -webkit-user-select: none;
     
 }
 
 .fileTab:hover {
     border: 2px orange dashed;
+}
+
+.fileTab.active {
+    border: 2px orange solid;
 }

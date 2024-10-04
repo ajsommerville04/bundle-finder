@@ -135,4 +135,8 @@ function getAssetsFolder(appFolderPath) {
     return returnFolder
 }
 
-module.exports = { tempFileCreate, readJson, updateJson, saveTempToPermanant, getAssetsFolder};
+function getSeperator() {
+    return path.sep
+}
+
+module.exports = { tempFileCreate, readJson, updateJson, saveTempToPermanant, getAssetsFolder, getSeperator};

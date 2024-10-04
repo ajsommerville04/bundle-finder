@@ -1,5 +1,5 @@
 const { ipcMain, dialog } = require('electron');
-const { tempFileCreate, readJson, updateJson, saveTempToPermanant, getAssetsFolder} = require('../js/modules/fileHandler.js')
+const { tempFileCreate, readJson, updateJson, saveTempToPermanant, getAssetsFolder, getSeperator} = require('../js/modules/fileHandler.js')
 const { runScript } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
@@ -123,9 +123,17 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
 
   ipcMain.handle("get-assets-folder", async (event) => {
     console.log("Assets function is firing correctly")
+    fileSeperator = getSeperator()
     return await getAssetsFolder(appBasePath)
 
   });
+
+  ipcMain.handle("set-backend-attributes", async (event, [newFolderPath, newImagePath, newJsonPath]) => {
+    folderPath = newFolderPath;
+    imagePath = newImagePath;
+    jsonPath = newJsonPath;
+    return;
+  }); 
 
   
 }
