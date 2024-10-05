@@ -8,6 +8,7 @@ async function tempFileCreate(buffer, appBasePath) {
     let folderPath = '';
     let imagePath = '';
     let jsonFile = null;
+    let temp = false
 
     //convert buffer to uint8array 
     const fileBuffer = Buffer.from(new Uint8Array(buffer));
@@ -29,6 +30,7 @@ async function tempFileCreate(buffer, appBasePath) {
         };
     } else {
         console.log("no save found")
+        temp = true;
         const tempDir = os.tmpdir(); // Get the OS's temp directory
         folderPath = path.join(tempDir, 'basic-gui', uniqueHash);
         //make dir in temp dir for this image
@@ -43,7 +45,7 @@ async function tempFileCreate(buffer, appBasePath) {
             throw error;
         }   
     }
-    return [folderPath, imagePath, jsonFile, path.sep];
+    return [folderPath, imagePath, jsonFile, path.sep, uniqueHash, temp];
 }
 
 
@@ -67,10 +69,10 @@ function updateJson(data, jsonPath) {
     });
 }
 
-async function saveTempToPermanant(tempFolderPath, appFolderPath) {
+async function saveTempToPermanant(tempFolderPath, appFolderPath, json) {
     const uniqueDirName = path.basename(tempFolderPath);
     const newDir = path.join(appFolderPath, "assets", uniqueDirName)
-    
+    let jsonPath = null;
     // Check if the target directory already exists
     if (!fs.existsSync(newDir)) {
         fs.mkdirSync(newDir);
@@ -78,12 +80,18 @@ async function saveTempToPermanant(tempFolderPath, appFolderPath) {
         // Now copy all contents from the temporary directory to the target directory
         await copyDirectory(tempFolderPath, newDir);
         deleteDirectoryRecursive(tempFolderPath);
+
+        
         
         
     } else {
         console.log(`Directory already exists: ${newDir}. Json File saved`);
     } 
-    return [newDir, path.join(newDir, "img.webp"), path.join(newDir, "mask_metadata.json")];
+    if (json !== null) {
+        jsonPath = path.join(newDir, "mask_metadata.json");
+    }
+    
+    return [newDir, path.join(newDir, "img.webp"), jsonPath];
 }
 
 // Function to copy a directory recursively
@@ -115,7 +123,7 @@ function deleteDirectoryRecursive(dir) {
     }
 }
 
-function getAssetsFolder(appFolderPath) {
+function getAssetsFolder(appFolderPath, temp) {
     const assetsFolderPath = path.join(appFolderPath, "assets")
     const imageFolders = fs.readdirSync(assetsFolderPath).filter(item => {
         const itemPath = path.join(assetsFolderPath, item);
@@ -128,7 +136,8 @@ function getAssetsFolder(appFolderPath) {
         info['uniqueHash'] = path.basename(folderPath)
         info['jsonPath'] = path.join(folderPath, "mask_metadata.json")
         info['imagePath'] = path.join(folderPath, 'img.webp')
-        info['dirPath'] = folderPath
+        info['folderPath'] = folderPath
+        info['temp'] = false
         returnFolder.push(info)
     })
     console.log("this should be an array of objects", returnFolder)

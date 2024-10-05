@@ -30,6 +30,7 @@ function initializeIpcHandlers(mainWindow) {
     if (arg) {
       mainWindow.webContents.send(message, ["Task completed signal sending!!", arg]);
     } else {
+      console.log("no arg activated")
       mainWindow.webContents.send(message, "Task completed signal sending!!");
     }
   });
@@ -39,18 +40,20 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
   let folderPath = null;
   let imagePath = null;
   let jsonPath = null;
+  let uniqueHash = null;
+  let temp = null;
   let fileSeperator = null;
 
   //rename this to be more accurately describe what it does
   ipcMain.handle('temp-file-create', async (event, fileBuffer) => {
     try {
-      [folderPath, imagePath, jsonPath, fileSeperator] = await tempFileCreate(fileBuffer, appBasePath);
+      [folderPath, imagePath, jsonPath, fileSeperator, uniqueHash, temp] = await tempFileCreate(fileBuffer, appBasePath);
       if (jsonPath !== null) {
         jsonSignal = true
       } else {
         jsonSignal = false
       }
-      return [imagePath, jsonSignal];
+      return [imagePath, jsonSignal, temp];
     } catch (error) {
       console.error('Error in temp-file-create handler', error)
     }
@@ -68,7 +71,10 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
       if (jsonPath === null) {
         console.log("The script:", scriptName);
         try {
-          jsonPath = await runScript(scriptName, imagePath);
+          const result = await runScript(scriptName, imagePath);
+          console.log("This is before its updated", jsonPath)
+          jsonPath = result;
+          console.log("This is after I update json", jsonPath)
           gameAssignerActive = false;
         } catch (error) {
           console.error("Error running python script", error.message);
@@ -101,37 +107,50 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
 
   ipcMain.handle("save-permenant", async (event) => {
     try {
-      [folderPath, imagePath, jsonPath] = await saveTempToPermanant(folderPath, appBasePath);
-      console.log(folderPath)
+      temp = false;
+      const result = await saveTempToPermanant(folderPath, appBasePath, jsonPath);
+      [folderPath, imagePath, jsonPath] = result;
+      console.log("should update folder path", folderPath)
 
-      // Return a success message (good practice for ipcMain.handle)
-      return { success: true, message: "File saved permanently." };
+      
     } catch (error) {
       console.error('Error saving file permenantly', error);
     }
   });
-
+  //depeciated
   ipcMain.handle("get-folder-dir", (event) => {
-    console.log(folderPath)
     return folderPath + fileSeperator;
   });
 
   ipcMain.handle("get-json-file", (event) => {
-    console.log(jsonPath)
     return jsonPath;
   });
+
+  //new function 
+  ipcMain.handle("get-all-variables", (event) => {
+    const info = {
+      folderPath: folderPath,
+      imagePath: imagePath,
+      jsonPath: jsonPath,
+      uniqueHash: uniqueHash,
+      temp: temp, 
+    }
+    return info;
+  })
 
   ipcMain.handle("get-assets-folder", async (event) => {
     console.log("Assets function is firing correctly")
     fileSeperator = getSeperator()
-    return await getAssetsFolder(appBasePath)
+    return await getAssetsFolder(appBasePath, temp)
 
   });
 
-  ipcMain.handle("set-backend-attributes", async (event, [newFolderPath, newImagePath, newJsonPath]) => {
+  ipcMain.handle("set-backend-attributes", async (event, [newFolderPath, newImagePath, newJsonPath, newUniqueHash, newTemp]) => {
     folderPath = newFolderPath;
     imagePath = newImagePath;
     jsonPath = newJsonPath;
+    uniqueHash = newUniqueHash;
+    temp = newTemp;
     return;
   }); 
 

@@ -15,11 +15,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getFolderPath: () => ipcRenderer.invoke("get-folder-dir"),
   getJsonFile: () => ipcRenderer.invoke("get-json-file"),
   getAssetsFolder: () => ipcRenderer.invoke("get-assets-folder"),
-  setBackendAttributes: (folderDir, imagePath, jsonPath) => ipcRenderer.invoke("set-backend-attributes", [folderDir, imagePath, jsonPath]),
+  getAllVariables: () => ipcRenderer.invoke("get-all-variables"),
+  setBackendAttributes: (folderDir, imagePath, jsonPath, uniqueHash, temp) => ipcRenderer.invoke("set-backend-attributes", [folderDir, imagePath, jsonPath, uniqueHash, temp]),
 
   sendTaskCompleted: (message, arg=null) => {ipcRenderer.send('task-completed', [message, arg]);},
   readSignalMasksAdded: (callback) => {ipcRenderer.on('masks-added-signal', (event, message) => callback(message));},
   readSignalTabsAdded: (callback) => {ipcRenderer.on('tabs-added-signal', (event, message) => callback(message));},
   readSignalUpdateJson: (callback) => {ipcRenderer.on('update-json-signal', (event, message) => callback(message));},
+  readSignalAddUpdateTab: (callback) => {ipcRenderer.on('add-update-tab', (event, message) => callback(message))}
 });
 
