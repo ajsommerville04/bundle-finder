@@ -1,4 +1,5 @@
 let isMergeActive = false;
+let location = null;
 let selectedTabs = [];
 // In another renderer file
 window.electronAPI.readSignalTabsAdded((message) => {
@@ -110,10 +111,41 @@ function addHandleTabClick(tabContainers) {
 
 // Function to handle tab clicks when merge mode is active
 function handleTabClick(event) {
+    console.log("This is the current location", location)
     if (isMergeActive) {
         const clickedTab = event.currentTarget.parentElement; // Get the clicked tab
         console.log(event.currentTarget.parentElement)
         const tabId = clickedTab.id;
+
+        const possibleLocation = event.currentTarget.parentElement.parentElement.parentElement.id;
+        console.log("this should be an ID", possibleLocation)
+        // Determine if the possible location has gamesList or backgroundList
+        if (possibleLocation === "gameslist") {
+            if (location === "background") {
+                // Confirm the switch from background to games
+                const confirmSwitch = confirm("You are currently in 'background'. Do you want to switch to 'games'?");
+                if (confirmSwitch) {
+                    location = "games"; // Switch location to games
+                } else {
+                    return;
+                }
+            } else {
+                location = "games"; // Set location to games if not already set
+                
+            }
+        } else if (possibleLocation === "backgroundlist") {
+            if (location === "games") {
+                // Confirm the switch from games to background
+                const confirmSwitch = confirm("You are currently in 'games'. Do you want to switch to 'background'?");
+                if (confirmSwitch) {
+                    location = "background"; // Switch location to background
+                } else {
+                    return;
+                }
+            } else {
+                location = "background"; // Set location to background if not already set
+            }
+        }
 
         // Check if tab is already selected
         if (!selectedTabs.includes(tabId)) {
@@ -129,21 +161,28 @@ function handleTabClick(event) {
 }
 
 // Function to handle confirm button click
-function handleConfirm() {
-    console.log("Confirmed");
-    isMergeActive = false;
+async function handleConfirm() {
+    console.log("Confirmed sending merge signal");
     // Add your logic here
+    try {
+        await window.electronAPI.runMergeMasks(selectedTabs, location)
+        await window.electronAPI.sendTaskCompleted('reset-tabs')
+        currentVar = await window.electronAPI.getAllVariables()
+        console.log("the current variables are", currentVar)
+        await window.electronAPI.sendTaskCompleted('masks-added-signal');
+    } catch (err) {
+        console.error("Theres a problem sending merge request", err)
+    }
     cleanup();
-    console.log("processing merge", selectedTabs)
 }
 
 // Function to handle cancel button click
 function handleCancel() {
     console.log("Cancelled");
     selectedTabs = [];
-    // Add your logic here
     cleanup();
-    isMergeActive = false;
+    
+    
 }
 
 // Function to cleanup after action
@@ -167,6 +206,8 @@ function cleanup() {
 
     // Hide buttons
     document.querySelector('.confirmDenyButtons').classList.add('hidden');
+    location = null
+    isMergeActive = false;
 }
 
 

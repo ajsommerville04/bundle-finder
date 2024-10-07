@@ -29,7 +29,28 @@ function runScript(scriptName, imagePath) {
     });
 }
 
+function mergeMasksInPython(keyList, jsonPath, location) {
+    // Prepare the arguments for the Python script
+    const keyListStr = keyList.join(",");  // Convert array to comma-separated string
+    const pythonProcess = spawn(venv, ['C:/Users/alex/Programming/Projects/basic-gui/python/merge-masks.py', keyListStr, jsonPath, location]);
+
+    // Listen for data output from the Python script
+    pythonProcess.stdout.on('data', (data) => {
+        console.log(`Python Output: ${data}`);
+    });
+
+    // Listen for errors
+    pythonProcess.stderr.on('data', (data) => {
+        console.error(`Python Error: ${data}`);
+    });
+
+    // Listen for the process to close
+    pythonProcess.on('close', (code) => {
+        console.log(`Python process closed with code ${code}`);
+    });
+}
 
 
 
-module.exports = { runScript };
+
+module.exports = { runScript, mergeMasksInPython };

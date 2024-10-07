@@ -112,4 +112,8 @@ function updateTab(tab, object) {
     tab.setAttribute('imagePath', object.imagePath);
     tab.setAttribute('jsonPath', object.jsonPath);
     tab.setAttribute('temp', object.temp)
-}
+};
+
+window.electronAPI.resetGameAssigner((message) => {
+    document.getElementById('gameAssignerContainer').innerHTML = originalGameAssigner;
+});

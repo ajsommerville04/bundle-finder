@@ -1,6 +1,6 @@
 const { ipcMain, dialog } = require('electron');
 const { tempFileCreate, readJson, updateJson, saveTempToPermanant, getAssetsFolder, getSeperator} = require('../js/modules/fileHandler.js')
-const { runScript } = require('../js/modules/runPythonScript.js')
+const { runScript, mergeMasksInPython } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
   ipcMain.on('minimize-window', () => {
@@ -86,6 +86,14 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
     }
     return gameAssignerActive;
   });
+
+  ipcMain.handle('merge-masks', async (event, keyList, location) => {
+    try {
+      await mergeMasksInPython(keyList, jsonPath, location);
+    } catch (error) {
+      console.error("Error running python script", error.message);
+    }
+  })
 
   ipcMain.handle("readjson", async (event) => {
     try {
