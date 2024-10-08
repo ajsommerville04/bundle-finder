@@ -7,7 +7,11 @@
     min-height: 0;
     flex: 1; /* Allow to grow and shrink */
     border-bottom: 2px solid #5d82b6;
+    user-select: none !important; 
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
 }
+
 
 
 .imageImage {
@@ -24,6 +28,7 @@
     max-width: 100%; /* Limit width to the container */
     max-height: 100%; /* Limit height to the container */
     object-fit: contain; 
+
 }
 
 .maskImage {

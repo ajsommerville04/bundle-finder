@@ -138,6 +138,7 @@ function createMaskImage(mask, active = false) {
     const maskImage = document.createElement('img');
     const dropzone = document.getElementById("dropzone")
     maskImage.className = active ? 'maskImage' : 'maskImage hidden';
+    maskImage.draggable = false;
     maskImage.src = folderDir + mask.filePath;
     maskImage.id = `img_${mask.name}`;
     maskImage.style.position = 'absolute';

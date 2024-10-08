@@ -3,6 +3,7 @@ let folderDir = null;
 window.electronAPI.readSignalUpdateJson(async (message) => {
     console.log("activation:", message)
     try {
+        console.log("folderDir:", folderDir)
         const data = await extractTabData();  // Await the data extraction
         await window.electronAPI.updateJson(data);  // Await the updateJson call
     } catch (error) {
@@ -53,7 +54,9 @@ async function extractTabData() {
 
 function getContainerInfo(tab) {
     const tabName = tab.id 
+    console.log(tab.getAttribute('data-image'))
     const tabFilePath = stripBasePath(tab.getAttribute('data-image'));                  
+    console.log("the tab file path is: ",tabFilePath)
     const tabDataArea = parseInt(tab.getAttribute('data-area'));                       
     const tabDataBbox = tab.getAttribute('data-bbox').split(',').map(Number);                      
 

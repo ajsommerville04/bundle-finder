@@ -163,11 +163,10 @@ function handleTabClick(event) {
 // Function to handle confirm button click
 async function handleConfirm() {
     console.log("Confirmed sending merge signal");
-    // Add your logic here
     try {
         await window.electronAPI.runMergeMasks(selectedTabs, location)
         await window.electronAPI.sendTaskCompleted('reset-tabs')
-        currentVar = await window.electronAPI.getAllVariables()
+        const currentVar = await window.electronAPI.getAllVariables()
         console.log("the current variables are", currentVar)
         await window.electronAPI.sendTaskCompleted('masks-added-signal');
     } catch (err) {
