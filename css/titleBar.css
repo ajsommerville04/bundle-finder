@@ -16,7 +16,7 @@
 }
 
 .titleBar {
-    height: auto;
+    position: relative;
 }
 
 .titleBarStyle {

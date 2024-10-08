@@ -7,7 +7,6 @@ body{
     margin: 0;
     padding: 0;
     background: #1c1f23;
-    height: 100%;
 }
 
 .container {
@@ -16,6 +15,11 @@ body{
     height: 100vh;
     display:grid;
     grid-template-rows: auto minmax(0, 1fr);
+}
+
+.titleBar {
+    height: 35px;
+    width: 100%;
 }
 
 .mainScreen{
@@ -31,4 +35,5 @@ body{
     overflow: hidden; /* Ensures that content inside these containers does not overflow */
     min-height: 0; /* Allows child elements to respect the parent's height restrictions */
     height: 100%; /* Restricts each section to the full height of the container */
+    max-height: 100%;
 }

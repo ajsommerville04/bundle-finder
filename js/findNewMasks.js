@@ -25,8 +25,13 @@ document.addEventListener('keydown', async function (event) {
 
             // Reset containers
             await window.electronAPI.sendTaskCompleted('reset-tabs');
-
             const currentVar = await window.electronAPI.getAllVariables();
+            imageContainer.innerHTML = '';
+
+            //create div to house the image and the rect
+            const divImage = document.createElement('div');
+            divImage.className = 'imageHouser'
+
 
             // Create new image element
             const img = document.createElement('img');
@@ -36,21 +41,22 @@ document.addEventListener('keydown', async function (event) {
             img.draggable = false;
 
             // Remove existing images
-            imageContainer.innerHTML = '';
-            imageContainer.appendChild(img);
+            
+            divImage.appendChild(img);
 
             // Create the selection rectangle
             const rect = document.createElement('div');
             rect.className = "selection-rectangle";
             rect.id = 'choosingRectangle'; 
-            img.appendChild(rect); 
+            divImage.appendChild(rect); 
+
+            imageContainer.appendChild(divImage)
 
             // Event listeners for mouse actions
             img.addEventListener('mousedown', setupMouseDown);
             img.addEventListener('mouseup', setupMouseUp);
             img.addEventListener('mousemove', setupMouseMove);
 
-            window.addEventListener('resize', handleResize);
 
             document.getElementById("confirm-deny-container").classList.remove("hidden");
             document.getElementById('confirm-btn').addEventListener('click', handleConfirm);
@@ -94,30 +100,6 @@ function setupMouseMove(event) {
 function setupMouseUp() {
     isDrawing = false; // Stop drawing
 }
-
-function handleResize() {
-    const image = document.getElementById('targetImage');
-    const rectangle = document.getElementById('choosingRectangle');
-    const imgRect = image.getBoundingClientRect();
-
-    // Adjust rectangle size and position based on the new image dimensions
-    if (isDrawing) {
-        const newWidth = rectangle.offsetWidth * (imgRect.width / imgOriginalWidth);
-        const newHeight = rectangle.offsetHeight * (imgRect.height / imgOriginalHeight);
-        const newLeft = rectangle.offsetLeft * (imgRect.width / imgOriginalWidth);
-        const newTop = rectangle.offsetTop * (imgRect.height / imgOriginalHeight);
-
-        rectangle.style.width = `${newWidth}px`;
-        rectangle.style.height = `${newHeight}px`;
-        rectangle.style.left = `${newLeft}px`;
-        rectangle.style.top = `${newTop}px`;
-    }
-
-    // Update original dimensions to current dimensions
-    imgOriginalWidth = imgRect.width;
-    imgOriginalHeight = imgRect.height;
-}
-
 
 function handleConfirm() {
     alert("Will send out signal with variables");
