@@ -13,7 +13,7 @@
 }
 
 
-
+/* Not used at the moment */
 .imageImage {
     max-width: 80px; 
     max-height: 80px; 
@@ -28,6 +28,7 @@
     max-width: 100%; /* Limit width to the container */
     max-height: 100%; /* Limit height to the container */
     object-fit: contain; 
+    position: relative;
 
 }
 
@@ -36,4 +37,15 @@
     max-width: 100%; /* Limit width to the container */
     max-height: 100%; /* Limit height to the container */
     object-fit: contain; 
+}
+
+.selection-rectangle {
+    position: absolute;
+    border: 2px dashed red; /* Style the rectangle */
+    pointer-events: none;
+    z-index: 10;
+}
+
+#targetImage {
+    z-index: 1; /* A base z-index */
 }

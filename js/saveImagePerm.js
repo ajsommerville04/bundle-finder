@@ -1,3 +1,4 @@
+
 document.addEventListener('keydown', function (event) {
     if (event.ctrlKey && event.key === 's') {
         event.preventDefault();
@@ -13,14 +14,15 @@ document.addEventListener('keydown', function (event) {
 });
 
 async function saveImage() {
-    console.log("Before getJsonFile")
+    console.log("Before getJsonFile");
     const jsonFile = await window.electronAPI.getJsonFile();
-    console.log("get json file", jsonFile)
+    console.log("get json file", jsonFile);
     if (jsonFile !== null) {
         await window.electronAPI.sendTaskCompleted('update-json-signal');
     }
-    console.log("before savePerm")
+    console.log("before savePerm");
     await window.electronAPI.savePerm();
-    console.log("Before sendTaskComplete add update tab")
+    console.log("Before sendTaskComplete add update tab");
     await window.electronAPI.sendTaskCompleted('add-update-tab');
 }
+
