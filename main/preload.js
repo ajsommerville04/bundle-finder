@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   tempFileCreate: (fileBuffer) => ipcRenderer.invoke('temp-file-create', fileBuffer),
   runGameFinder: (scriptName) => ipcRenderer.invoke("run-game-finder", scriptName),
   runMergeMasks: (keyList, location) => ipcRenderer.invoke('merge-masks', keyList, location),
+  runFindMaskInArea: (bbox) => ipcRenderer.invoke('find-games-in-area', bbox),
   readJson: () => ipcRenderer.invoke("readjson"),
   updateJson: (gameAssigner) => ipcRenderer.invoke("update-json", gameAssigner),
   savePerm: () => ipcRenderer.invoke("save-permenant"),
@@ -18,6 +19,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getAssetsFolder: () => ipcRenderer.invoke("get-assets-folder"),
   getAllVariables: () => ipcRenderer.invoke("get-all-variables"),
   setBackendAttributes: (folderDir, imagePath, jsonPath, uniqueHash, temp) => ipcRenderer.invoke("set-backend-attributes", [folderDir, imagePath, jsonPath, uniqueHash, temp]),
+
 
   sendTaskCompleted: (message, arg=null) => {ipcRenderer.send('task-completed', [message, arg]);},
   readSignalMasksAdded: (callback) => {ipcRenderer.on('masks-added-signal', (event, message) => callback(message));},

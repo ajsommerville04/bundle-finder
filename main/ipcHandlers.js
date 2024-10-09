@@ -1,6 +1,6 @@
 const { ipcMain, dialog } = require('electron');
 const { tempFileCreate, readJson, updateJson, saveTempToPermanant, getAssetsFolder, getSeperator} = require('../js/modules/fileHandler.js')
-const { runScript, mergeMasksInPython } = require('../js/modules/runPythonScript.js')
+const { runScript, mergeMasksInPython, findMasksInArea } = require('../js/modules/runPythonScript.js')
 
 function initializeIpcHandlers(mainWindow) {
   ipcMain.on('minimize-window', () => {
@@ -95,10 +95,20 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
     }
   })
 
+  ipcMain.handle('find-games-in-area', async (event, bbox) =>  {
+    try {
+      console.log("This is the bbox", bbox)
+      await findMasksInArea(imagePath, bbox, uniqueHash);
+      return "success";
+    } catch (err) {
+      console.error("Error running find games in area", err)
+    }
+  })
+
   ipcMain.handle("readjson", async (event) => {
     try {
       console.log("attempting to read file", jsonPath)
-      const data = readJson(jsonPath)
+      const data = readJson(jsonPath);
       return data
     } catch (error) {
       console.error('Error loading data:', error)

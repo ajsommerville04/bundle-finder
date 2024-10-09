@@ -30,27 +30,55 @@ function runScript(scriptName, imagePath) {
 }
 
 function mergeMasksInPython(keyList, jsonPath, location) {
-    // Prepare the arguments for the Python script
-    const keyListStr = keyList.join(",");  // Convert array to comma-separated string
-    const pythonProcess = spawn(venv, ['C:/Users/alex/Programming/Projects/basic-gui/python/merge-masks.py', keyListStr, jsonPath, location]);
+    return new Promise((resolve, reject) => {
+        // Prepare the arguments for the Python script
+        const keyListStr = keyList.join(",");  // Convert array to comma-separated string
+        const pythonProcess = spawn(venv, ['C:/Users/alex/Programming/Projects/basic-gui/python/merge-masks.py', keyListStr, jsonPath, location]);
 
-    // Listen for data output from the Python script
-    pythonProcess.stdout.on('data', (data) => {
-        console.log(`Python Output: ${data}`);
+        // Listen for data output from the Python script
+        pythonProcess.stdout.on('data', (data) => {
+            console.log(`Python Output: ${data}`);
+        });
+
+        // Listen for errors
+        pythonProcess.stderr.on('data', (data) => {
+            console.error(`Python Error: ${data}`);
+        });
+
+        // Listen for the process to close
+        pythonProcess.on('close', (code) => {
+            console.log(`Python process closed with code ${code}`);
+            resolve();
+        });
+    });
+};
+
+async function findMasksInArea(imagePath, bbox, dirPath) {
+    return new Promise((resolve, reject) => {
+        // Prepare the arguments for the Python script
+        const bboxString = bbox.join(",");  // Convert array to comma-separated string
+        const pythonProcess = spawn(venv, ['C:/Users/alex/Programming/Projects/basic-gui/python/find_mask_in_area.py', imagePath, bboxString, dirPath]);
+
+        // Listen for data output from the Python script
+        pythonProcess.stdout.on('data', (data) => {
+            console.log(`Python Output: ${data}`);
+        });
+
+        // Listen for errors
+        pythonProcess.stderr.on('data', (data) => {
+            console.error(`Python Error: ${data}`);
+        });
+
+        // Listen for the process to close
+        pythonProcess.on('close', (code) => {
+            console.log(`Python process closed with code ${code}`);
+            resolve();
+        });
     });
 
-    // Listen for errors
-    pythonProcess.stderr.on('data', (data) => {
-        console.error(`Python Error: ${data}`);
-    });
-
-    // Listen for the process to close
-    pythonProcess.on('close', (code) => {
-        console.log(`Python process closed with code ${code}`);
-    });
-}
+};
 
 
 
 
-module.exports = { runScript, mergeMasksInPython };
+module.exports = { runScript, mergeMasksInPython, findMasksInArea };

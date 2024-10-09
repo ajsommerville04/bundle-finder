@@ -2,8 +2,12 @@ let stateImageContainer;
 let stateGameAssignerContainer;
 let isDrawing = false;
 let startX, startY;
+let endX, endY;
 let imgOriginalWidth, imgOriginalHeight;
 let rectangleOriginalWidth, rectangleOriginalHeight;
+let aspectRatio;
+
+
 
 const imageContainer = document.getElementById("dropzone");
 const gameAssignerContainer = document.getElementById("gameAssignerContainer");
@@ -31,14 +35,21 @@ document.addEventListener('keydown', async function (event) {
             //create div to house the image and the rect
             const divImage = document.createElement('div');
             divImage.className = 'imageHouser'
+            divImage.id = 'imageHouser'
 
 
             // Create new image element
             const img = document.createElement('img');
             img.src = currentVar.imagePath;
+            
             img.classList.add('dropped-image');
             img.id = "targetImage";
             img.draggable = false;
+
+            img.onload = function() {
+                aspectRatio = getAspectRatio(img);  // Pass the img element
+                console.log("Aspect Ratio: ", aspectRatio);
+            };
 
             // Remove existing images
             
@@ -51,6 +62,8 @@ document.addEventListener('keydown', async function (event) {
             divImage.appendChild(rect); 
 
             imageContainer.appendChild(divImage)
+
+            
 
             // Event listeners for mouse actions
             img.addEventListener('mousedown', setupMouseDown);
@@ -83,8 +96,8 @@ function setupMouseMove(event) {
     const image = document.getElementById('targetImage');
     const rectangle = document.getElementById('choosingRectangle');
     const rect = image.getBoundingClientRect();
-    const endX = event.clientX - rect.left;  // Get current mouse position
-    const endY = event.clientY - rect.top;
+    endX = event.clientX - rect.left;  // Get current mouse position
+    endY = event.clientY - rect.top;
 
     // Set the rectangle's position and size dynamically as mouse moves
     const width = endX - startX;
@@ -101,8 +114,43 @@ function setupMouseUp() {
     isDrawing = false; // Stop drawing
 }
 
-function handleConfirm() {
-    alert("Will send out signal with variables");
+async function handleConfirm() {
+    const element = document.getElementById("imageHouser");
+    const currentWidth = element.offsetWidth;
+    const currentHeight = element.offsetHeight;
+    const currentAspectRatio = parseFloat((currentWidth/currentHeight).toFixed(2));
+    const constraintMultiplier = parseFloat((imgOriginalWidth/currentWidth).toFixed(2));
+    let newStartX, newStartY, newEndX, newEndY; 
+
+    newStartX = Math.round(startX * constraintMultiplier);
+    newEndX = Math.round(endX * constraintMultiplier);
+
+    if (currentAspectRatio === aspectRatio) {
+        newStartY = Math.round(startY * constraintMultiplier);
+        newEndY = Math.round(endY * constraintMultiplier);
+    } else {
+        const actualHeight = imgOriginalHeight/constraintMultiplier;
+        const getOverlap = (currentHeight - actualHeight)/2;
+
+        startY = startY - getOverlap;
+        endY = endY - getOverlap;
+
+        if (startY < 0 || startY > actualHeight || endY < 0 || endY > actualHeight) {
+            alert("rectangle outside of image")
+            return;
+        } 
+        //alter Y coordinates to account 
+        newStartY = Math.round(startY * constraintMultiplier);
+        newEndY = Math.round(endY * constraintMultiplier);
+    }
+
+    const bbox = [newStartX, newStartY, newEndX, newEndY];
+
+    const result = await window.electronAPI.runFindMaskInArea(bbox);
+    
+    if (!result === 'success') {
+        return;
+    }
     
     // Reset to previous state
     gameAssignerContainer.innerHTML = stateGameAssignerContainer;
@@ -113,3 +161,16 @@ function handleCancel() {
     gameAssignerContainer.innerHTML = stateGameAssignerContainer;
     imageContainer.innerHTML = stateImageContainer;
 }
+
+function getAspectRatio(image) {
+    if (image && image.complete) {
+        imgOriginalWidth = image.naturalWidth;  // Get the natural width of the image
+        imgOriginalHeight = image.naturalHeight; // Get the natural height of the image
+
+        return parseFloat((imgOriginalWidth / imgOriginalHeight).toFixed(2));
+    } else {
+        console.error("Image is not loaded yet.");
+        return null;  // Return null if the image is not ready
+
+    }
+};
