@@ -4,7 +4,7 @@ let endX, endY;
 let imgOriginalWidth, imgOriginalHeight;
 let rectangleOriginalWidth, rectangleOriginalHeight;
 let aspectRatio;
-
+let currentVar
 
 
 const imageContainer = document.getElementById("dropzone");
@@ -24,8 +24,45 @@ document.addEventListener('keydown', async function (event) {
             // Reset containers
             gameAssignerContainer.innerHTML = '';
 
+            //create container for masks
+            const possibleContainer = document.createElement('div');
+            const containerTitle = document.createElement('div');
+            const containerMaskContainer = document.createElement('div');
 
-            const currentVar = await window.electronAPI.getAllVariables();
+            possibleContainer.className = "masksPossible";
+
+            containerTitle.className = "masksTitle masksTitleStyle";
+            containerTitle.textContent = "Possible Masks";
+
+            containerMaskContainer.className = "primaryContainer";
+            containerMaskContainer.id = 'possible-masks-container'
+
+            
+            //create confirmDenyButtons
+            
+            const confirmDenyContainer = document.createElement('div');
+            confirmDenyContainer.className ="confirmDenyButtons";
+            confirmDenyContainer.id = "confirm-deny-container";
+            
+            const confirmButton = document.createElement('button');
+            confirmButton.id = "confirm-btn"
+            confirmButton.textContent = "✓"
+
+            const denyButton = document.createElement('button');
+            denyButton.id = "deny-btn";
+            denyButton.textContent = "x";
+            
+            confirmDenyContainer.append(confirmButton, denyButton);
+            containerTitle.appendChild(confirmDenyContainer);
+            possibleContainer.append(containerTitle,containerMaskContainer);
+
+            gameAssignerContainer.appendChild(possibleContainer)
+
+
+
+
+            //set image
+            currentVar = await window.electronAPI.getAllVariables();
             imageContainer.innerHTML = '';
 
             //create div to house the image and the rect
@@ -67,9 +104,9 @@ document.addEventListener('keydown', async function (event) {
             img.addEventListener('mousemove', setupMouseMove);
 
 
-            document.getElementById("confirm-deny-container").classList.remove("hidden");
-            document.getElementById('confirm-btn').addEventListener('click', handleConfirm);
-            document.getElementById('deny-btn').addEventListener('click', handleCancel);
+            
+            confirmButton.addEventListener('click', handleConfirm);
+            denyButton.addEventListener('click', handleCancel);
         } else {
             console.log("No image loaded.");
         }
@@ -111,6 +148,8 @@ function setupMouseUp() {
 }
 
 async function handleConfirm() {
+    //hide confirmer
+    document.getElementById('confirm-deny-container').classList.add('hidden')
     const element = document.getElementById("imageHouser");
     const currentWidth = element.offsetWidth;
     const currentHeight = element.offsetHeight;
@@ -148,8 +187,16 @@ async function handleConfirm() {
         console.error("failed to find mask in area")
         return;
     }
+    
+   
+    const img = document.createElement('img');
+    img.src = currentVar.imagePath;
+    img.classList.add('dropped-image');
+    //remove existing images
+    imageContainer.innerHTML = '';
+    imageContainer.appendChild(img);
     // Load possible masks
-
+    await window.electronAPI.sendTaskCompleted('temp-load-possible')
 
     // Reset to previous state
     

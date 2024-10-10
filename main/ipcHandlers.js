@@ -106,10 +106,12 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
   })
 
   ipcMain.handle("readjson", async (event, givenJsonFile) => {
+    //set up for unifying readJson
     let data;
     try {
       if (givenJsonFile !== null) {
         console.log("attempting to read given file path: ", givenJsonFile)
+        data = readJson(givenJsonFile)
       } else {
         console.log("attempting to read file", jsonPath)
         data = readJson(jsonPath);
@@ -140,11 +142,11 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
       console.error('Error saving file permenantly', error);
     }
   });
-  //depeciated
+  //deprecated
   ipcMain.handle("get-folder-dir", (event) => {
     return folderPath + fileSeperator;
   });
-
+  //deprecated
   ipcMain.handle("get-json-file", (event) => {
     return jsonPath;
   });
@@ -157,6 +159,8 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
       jsonPath: jsonPath,
       uniqueHash: uniqueHash,
       temp: temp, 
+      seperator: fileSeperator,
+      
     }
     return info;
   })
@@ -174,6 +178,7 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
     jsonPath = newJsonPath;
     uniqueHash = newUniqueHash;
     temp = newTemp;
+    
     return;
   }); 
 

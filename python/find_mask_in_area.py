@@ -103,9 +103,10 @@ def saveToTempDir(uniqueHash, masks, scores):
 
     #make save dir location
     tempDirPath = tempfile.gettempdir()
-    saveDirPath = os.path.join(tempDirPath, 'basic-gui', uniqueHash, 'possible-masks')
+    saveDirName = os.path.join(tempDirPath, 'basic-gui', uniqueHash)
+    saveDirPath = os.path.join(saveDirName, 'possible-masks')
     if not os.path.isdir(saveDirPath):
-        os.mkdir(saveDirPath)
+        os.makedirs(saveDirPath)
         print("Created successfully")
 
     mask_metadata = {}
@@ -130,15 +131,15 @@ def saveToTempDir(uniqueHash, masks, scores):
         #area
         area = np.sum(mask)
 
-        mask_metadata[filePath] = {
-            "name" : score,
+        mask_metadata[f"possible_masks{idx}"] = {
+            "name" : round(score, 2),
             "filePath": os.path.join('possible-masks', file),
             "area": area,
             "bbox": bbox,
             "internal": []
         }
 
-    json_file_path = os.path.join(saveDirPath, 'mask_metadata.json')
+    json_file_path = os.path.join(saveDirName, 'possible_mask_metadata.json')
     with open(json_file_path, 'w') as json_file:
         json.dump(mask_metadata, json_file, indent=4, default=serialize_data)
 

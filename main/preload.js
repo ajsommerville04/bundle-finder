@@ -27,5 +27,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   readSignalUpdateJson: (callback) => {ipcRenderer.on('update-json-signal', (event, message) => callback(message));},
   readSignalAddUpdateTab: (callback) => {ipcRenderer.on('add-update-tab', (event, message) => callback(message))},
   resetGameAssigner: (callback) => {ipcRenderer.on('reset-tabs', (event, message) => callback(message))},
+  tempLoadPossible: (callback) => {ipcRenderer.on('temp-load-possible', (event, message) => callback(message))},
 });
 

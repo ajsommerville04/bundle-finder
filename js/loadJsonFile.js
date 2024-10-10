@@ -6,6 +6,8 @@ window.electronAPI.readSignalMasksAdded(([message]) => {
     loadJson();
 });
 
+//have to alter this file to be able to read certain files
+
 async function loadJson() {
     console.log("attempting to read json file")
     const maskData = await window.electronAPI.readJson();
