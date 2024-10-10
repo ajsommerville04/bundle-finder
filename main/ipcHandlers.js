@@ -105,10 +105,15 @@ function initializeIpcHandlersNonWindowEvent(appBasePath) {
     }
   })
 
-  ipcMain.handle("readjson", async (event) => {
+  ipcMain.handle("readjson", async (event, givenJsonFile) => {
+    let data;
     try {
-      console.log("attempting to read file", jsonPath)
-      const data = readJson(jsonPath);
+      if (givenJsonFile !== null) {
+        console.log("attempting to read given file path: ", givenJsonFile)
+      } else {
+        console.log("attempting to read file", jsonPath)
+        data = readJson(jsonPath);
+      }
       return data
     } catch (error) {
       console.error('Error loading data:', error)

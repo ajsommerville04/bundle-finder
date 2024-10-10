@@ -1,5 +1,3 @@
-let stateImageContainer;
-let stateGameAssignerContainer;
 let isDrawing = false;
 let startX, startY;
 let endX, endY;
@@ -23,12 +21,10 @@ document.addEventListener('keydown', async function (event) {
         if (image && image.src) {
             console.log("This will activate find masks from area");
 
-            // Save current state
-            stateImageContainer = imageContainer.innerHTML;
-            stateGameAssignerContainer = gameAssignerContainer.innerHTML;
-
             // Reset containers
-            await window.electronAPI.sendTaskCompleted('reset-tabs');
+            gameAssignerContainer.innerHTML = '';
+
+
             const currentVar = await window.electronAPI.getAllVariables();
             imageContainer.innerHTML = '';
 
@@ -149,17 +145,18 @@ async function handleConfirm() {
     const result = await window.electronAPI.runFindMaskInArea(bbox);
     
     if (!result === 'success') {
+        console.error("failed to find mask in area")
         return;
     }
-    
+    // Load possible masks
+
+
     // Reset to previous state
-    gameAssignerContainer.innerHTML = stateGameAssignerContainer;
-    imageContainer.innerHTML = stateImageContainer;
+    
 }
 
 function handleCancel() {
-    gameAssignerContainer.innerHTML = stateGameAssignerContainer;
-    imageContainer.innerHTML = stateImageContainer;
+    // reload tabs
 }
 
 function getAspectRatio(image) {

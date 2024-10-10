@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   runGameFinder: (scriptName) => ipcRenderer.invoke("run-game-finder", scriptName),
   runMergeMasks: (keyList, location) => ipcRenderer.invoke('merge-masks', keyList, location),
   runFindMaskInArea: (bbox) => ipcRenderer.invoke('find-games-in-area', bbox),
-  readJson: () => ipcRenderer.invoke("readjson"),
+  readJson: (givenJsonPath = null) => ipcRenderer.invoke("readjson", givenJsonPath),
   updateJson: (gameAssigner) => ipcRenderer.invoke("update-json", gameAssigner),
   savePerm: () => ipcRenderer.invoke("save-permenant"),
   getFolderPath: () => ipcRenderer.invoke("get-folder-dir"),

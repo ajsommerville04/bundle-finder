@@ -2,8 +2,11 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 from segment_anything import sam_model_registry, SamPredictor
+
 import sys
 import os
+import tempfile
+import json
 
 def load_model(checkpoint_path: str, model_type: str = "vit_h"):
     """
@@ -55,22 +58,6 @@ def get_masks_in_bbox(predictor: SamPredictor, bbox: list):
         multimask_output=True)
     return masks, scores
 
-def get_masks_from_point(predictor: SamPredictor, point: list):
-    """
-    Get masks within a specified bounding box.
-    
-    Args:
-    - predictor (SamPredictor): An instance of the SamPredictor.
-    - bbox (list): Bounding box coordinates [x_min, y_min, x_max, y_max].
-    
-    Returns:
-    - masks (list): List of predicted masks.
-    - scores (list): List of confidence scores for the masks.
-    """
-    bbox_array = np.array(point)
-    masks, scores, _ = predictor.predict(box=bbox_array, multimask_output=True)
-    return masks, scores
-
 def visualize_masks(image: np.ndarray, masks: list, scores: list, bbox:list):
     """
     Visualize the predicted masks on the image.
@@ -94,29 +81,73 @@ def visualize_masks(image: np.ndarray, masks: list, scores: list, bbox:list):
         plt.axis('off')
         plt.show()
 
-def display_image_with_bbox(image_path: str, bbox: list):
-    """
-    Display the image with a bounding box drawn on it.
-    
-    Args:
-    - image (numpy.ndarray): Original input image.
-    - bbox (list): Bounding box coordinates [x_min, y_min, x_max, y_max].
-    """
-    image = cv2.imread(image_path)
-    # Draw the bounding box on the image
-    x_min, y_min, x_max, y_max = bbox
-    cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (255, 0, 0), 2)  # Draw the bounding box in blue
 
-    # Display the image with the bounding box
-    plt.figure(figsize=(8, 8))
-    plt.imshow(image)
-    plt.title("Image with Bounding Box")
-    plt.axis('off')
-    plt.show()
+
+def saveToTempDir(uniqueHash, masks, scores):
+    def transparent(segmentaion, path):
+        png_image = np.uint8(segmentaion * 255)
+        alpha_channel = np.where(png_image == 0, 0, 255).astype(np.uint8)
+        rgba_image = cv2.merge((png_image, png_image, png_image, alpha_channel))
+        cv2.imwrite(path, rgba_image)
+
+    def serialize_data(obj):
+        # Check for NumPy types and convert them to standard Python types
+        if isinstance(obj, (np.ndarray, list)):
+            return obj.tolist()  # Convert numpy array or list to a standard list
+        elif isinstance(obj, (np.int32, np.int64)):
+            return int(obj)  # Convert NumPy int to standard int
+        elif isinstance(obj, (np.float32, np.float64)):
+            return float(obj)  # Convert NumPy float to standard float
+        return obj  # Return the object as is if it's already serializable
+
+
+    #make save dir location
+    tempDirPath = tempfile.gettempdir()
+    saveDirPath = os.path.join(tempDirPath, 'basic-gui', uniqueHash, 'possible-masks')
+    if not os.path.isdir(saveDirPath):
+        os.mkdir(saveDirPath)
+        print("Created successfully")
+
+    mask_metadata = {}
+
+
+
+    for idx, (mask, score) in enumerate(zip(masks, scores)):
+        file = f"foundMask{idx}.png"
+        filePath = os.path.join(saveDirPath, file)
+        transparent(mask, filePath)
+
+        #bbox
+        non_zero_pixels = np.argwhere(mask > 0)
+        # Calculate the bounding box coordinates
+        y_min, x_min = non_zero_pixels.min(axis=0)
+        y_max, x_max = non_zero_pixels.max(axis=0)
+        width = x_max - x_min
+        height = y_max - y_min
+        #set bounding box
+        bbox = (x_min, y_min, width, height)
+
+        #area
+        area = np.sum(mask)
+
+        mask_metadata[filePath] = {
+            "name" : score,
+            "filePath": os.path.join('possible-masks', file),
+            "area": area,
+            "bbox": bbox,
+            "internal": []
+        }
+
+    json_file_path = os.path.join(saveDirPath, 'mask_metadata.json')
+    with open(json_file_path, 'w') as json_file:
+        json.dump(mask_metadata, json_file, indent=4, default=serialize_data)
+
+    
+
+    
 
 def find_mask_in_area(imagePath, bbox, dirPath):
     # Paths and parameters
-    #temperory variables
     checkpoint_path = "python\\checkpoints\\sam_vit_l_0b3195.pth"  # Path to your SAM model checkpoint
     bbox = [int(x) for x in bbox]
     # Load model
@@ -127,10 +158,13 @@ def find_mask_in_area(imagePath, bbox, dirPath):
 
     # Get masks within the bounding box
     masks, scores = get_masks_in_bbox(predictor, bbox)
+    print(type(masks))
+    print(type(masks[0]))
     #masks, scores = get_masks_from_point(predictor, point)
 
     # Visualize results
-    visualize_masks(image, masks, scores, bbox)
+    saveToTempDir(dirPath, masks, scores)
+    #visualize_masks(image, masks, scores, bbox)
 
 if __name__ == "__main__":
     imagePath = sys.argv[1]
